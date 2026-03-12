@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("INVENTORY_DATABASE_URL")
+  directUrl = env("INVENTORY_DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String   @default("Admin")
+  username  String   @unique
+  password  String
+  role      String   @default("STAFF")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Store {
+  id        String    @id @default(uuid())
+  name      String
+  branch    String?
+  address   String?
+  phone     String?
+  gstin     String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+  invoices  Invoice[]
+}
+
+model Product {
+  id               String        @id @default(uuid())
+  name             String
+  sku              String        @unique
+  section          String
+  price            Float
+  gstPercent       Float
+  discountPercent  Float         @default(0)
+  stockQuantity    Int           @default(0)
+  lowStockThreshold Int         @default(10)
+  cartonsCount     Int           @default(0)
+  itemsPerCarton   Int           @default(0)
+  measurementType  String?       // "weight" | "pieces" | "volume"
+  measurementValue Float?
+  measurementUnit  String?       // "g" | "kg" | "ml" | "L" | "pcs"
+  expiryDate       DateTime?
+  storeId          String?
+  store            Store?        @relation(fields: [storeId], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  invoiceItems     InvoiceItem[]
+
+  @@index([name])
+  @@index([storeId])
+  @@index([expiryDate])
+}
+
+model Invoice {
+  id            String        @id @default(uuid())
+  invoiceNumber String        @unique
+  customerName  String
+  customerPhone String?
+  totalAmount   Float
+  subTotal      Float
+  gstTotal      Float
+  discountTotal Float
+  paymentStatus String        @default("PENDING")
+  paidAmount    Float         @default(0)
+  storeId       String?
+  store         Store?        @relation(fields: [storeId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  items         InvoiceItem[]
+
+  @@index([customerName])
+  @@index([paymentStatus])
+  @@index([storeId])
+}
+
+model InvoiceItem {
+  id             String   @id @default(uuid())
+  invoiceId      String
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity       Int
+  priceAtTime    Float
+  gstAtTime      Float
+  discountAtTime Float
+
+  @@index([invoiceId])
+  @@index([productId])
+}
+
+model RolePermission {
+  id          String   @id @default(uuid())
+  role        String   @unique
+  permissions Json
+  updatedAt   DateTime @updatedAt
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
