@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic';
 const DEFAULT_PERMISSIONS = {
     dashboard: true,
     products: true,
-    invoices: true,
+    view_invoices: true,
+    create_invoices: true,
     analytics: true,
     settings: false,
 };
@@ -18,7 +19,7 @@ export async function GET() {
 
         const mappedRoles = roles.map(role => {
             const found = dbRoles.find(r => r.role === role);
-            return found || { role, permissions: role === 'ADMIN' ? { dashboard: true, products: true, invoices: true, analytics: true, settings: true } : DEFAULT_PERMISSIONS };
+            return found || { role, permissions: role === 'ADMIN' ? { dashboard: true, products: true, view_invoices: true, create_invoices: true, analytics: true, settings: true } : DEFAULT_PERMISSIONS };
         });
 
         return NextResponse.json(mappedRoles);

@@ -29,9 +29,15 @@ export async function GET(request: NextRequest) {
 
         let section = 'dashboard';
         if (path.startsWith('/inventory-app/products')) section = 'products';
-        else if (path.startsWith('/inventory-app/invoices')) section = 'invoices';
+        else if (path.startsWith('/inventory-app/invoices/new')) section = 'create_invoices';
+        else if (path.startsWith('/inventory-app/invoices')) section = 'view_invoices';
         else if (path.startsWith('/inventory-app/analytics')) section = 'analytics';
         else if (path.startsWith('/inventory-app/settings')) section = 'settings';
+
+        // Fallback: if old 'invoices' key exists in perms (migration), treat it as view_invoices
+        if ((section === 'view_invoices' || section === 'create_invoices') && perms[section] === undefined && perms['invoices'] !== undefined) {
+            return NextResponse.json({ allowed: perms['invoices'] === true });
+        }
 
         return NextResponse.json({ allowed: perms[section] === true });
     } catch (error) {

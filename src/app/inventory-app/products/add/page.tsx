@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package, Save, Weight, Layers, Droplets, Calendar, Store } from 'lucide-react';
+import { Package, Save, Weight, Layers, Droplets, Calendar, Store, X } from 'lucide-react';
 
 const FMCG_CATEGORIES = ['Baby Care', 'Beverages', 'Canned & Preserved', 'Condiments', 'Dairy', 'Frozen Foods', 'Health', 'Household', 'Packaged Foods', 'Personal Care', 'Snacks', 'Staples', 'Electronics', 'Furniture', 'Stationery', 'Networking'];
 
@@ -52,9 +52,28 @@ export default function AddProductPage() {
     const [stores, setStores] = useState<{ id: string; name: string; branch?: string }[]>([]);
     const [existingSections, setExistingSections] = useState<string[]>([]);
 
+    // Variants
+    const [hasVariants, setHasVariants] = useState(false);
+    const [variants, setVariants] = useState<{ value: string; price: string; stock: string; lowStock: string; expiry: string; sku?: string }[]>([
+        { value: '', price: '', stock: '', lowStock: '10', expiry: '' }
+    ]);
+
+    // Suggestions
+    const [existingNames, setExistingNames] = useState<string[]>([]);
+    const [showNameSuggestions, setShowNameSuggestions] = useState(false);
+    const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
+    const [categorySearch, setCategorySearch] = useState('');
+
     useEffect(() => {
         fetch('/inventory-app/api/settings').then(r => r.json()).then(d => setGstEnabled(d.gst_enabled === 'true'));
         fetch('/inventory-app/api/stores').then(r => r.json()).then(d => { setStores(d); if (d.length > 0) setStoreId(d[0].id); });
+        // Fetch existing categories and product names from the database
+        fetch('/inventory-app/api/products').then(r => r.json()).then((products: any[]) => {
+            const sections = [...new Set(products.map((p: any) => p.section).filter(Boolean))] as string[];
+            setExistingSections(sections);
+            const names = [...new Set(products.map((p: any) => p.name).filter(Boolean))] as string[];
+            setExistingNames(names);
+        });
     }, []);
 
     const effectiveSection = isNewCategory ? newCategoryName : section;
@@ -75,6 +94,13 @@ export default function AddProductPage() {
     };
 
     const allSections = [...new Set([...FMCG_CATEGORIES, ...existingSections])].sort();
+    const filteredSections = categorySearch
+        ? allSections.filter(s => s.toLowerCase().includes(categorySearch.toLowerCase()))
+        : allSections;
+
+    const filteredNames = name.length >= 2
+        ? existingNames.filter(n => n.toLowerCase().includes(name.toLowerCase()))
+        : [];
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -84,34 +110,46 @@ export default function AddProductPage() {
         setSuccess('');
 
         try {
-            const res = await fetch('/inventory-app/api/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name, sku, section: effectiveSection,
-                    price, gstPercent: gstEnabled ? gstPercent : '0',
-                    discountPercent,
-                    stockQuantity: finalStock,
-                    lowStockThreshold: parseInt(lowStockThreshold) || 10,
-                    cartonsCount: parseInt(cartonsCount) || 0,
-                    itemsPerCarton: parseInt(itemsPerCarton) || 0,
-                    measurementType,
-                    measurementValue: parseFloat(measurementValue) || null,
-                    measurementUnit,
-                    expiryDate: hasExpiry && expiryDate ? expiryDate : null,
-                    storeId: storeId || null,
-                }),
-            });
+            const variantList = hasVariants ? variants : [{ 
+                value: `${measurementValue}${measurementUnit}`, 
+                price, 
+                stock: finalStock.toString(),
+                lowStock: lowStockThreshold,
+                expiry: hasExpiry ? expiryDate : ''
+            }];
 
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || 'Something went wrong');
+            for (const v of variantList) {
+                const res = await fetch('/inventory-app/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: hasVariants ? `${name} ${v.value}` : name,
+                        sku: v.sku || (hasVariants ? `${sku}-${v.value.replace(/\s+/g, '')}` : sku),
+                        section: effectiveSection,
+                        price: v.price || price,
+                        gstPercent: gstEnabled ? gstPercent : '0',
+                        discountPercent,
+                        stockQuantity: parseInt(v.stock) || 0,
+                        lowStockThreshold: parseInt(v.lowStock) || 10,
+                        measurementType: measurementType,
+                        measurementValue: hasVariants ? parseFloat(v.value) || null : parseFloat(measurementValue) || null,
+                        measurementUnit: measurementUnit,
+                        expiryDate: v.expiry || null,
+                        storeId: storeId || null,
+                    }),
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || 'Something went wrong');
+                }
             }
 
-            setSuccess('Product added successfully!');
+            setSuccess(hasVariants ? 'Variants added successfully!' : 'Product added successfully!');
             setName(''); setSku(''); setSkuEdited(false); setPrice('');
             setCartonsCount(''); setItemsPerCarton(''); setManualStock('');
             setMeasurementValue(''); setExpiryDate(''); setHasExpiry(false);
+            setVariants([{ value: '', price: '', stock: '', lowStock: '10', expiry: '' }]);
             setTimeout(() => setSuccess(''), 3000);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Unknown error');
@@ -119,6 +157,14 @@ export default function AddProductPage() {
             setIsSubmitting(false);
         }
     };
+
+    const addVariant = () => setVariants([...variants, { value: '', price: '', stock: '', lowStock: '10', expiry: '' }]);
+    const updateVariant = (index: number, field: keyof typeof variants[0], val: string) => {
+        const newV = [...variants];
+        newV[index] = { ...newV[index], [field]: val };
+        setVariants(newV);
+    };
+    const removeVariant = (index: number) => setVariants(variants.filter((_, i) => i !== index));
 
     const sectionBox = (type: 'weight' | 'volume' | 'pieces', icon: React.ReactNode, label: string) => (
         <button
@@ -155,23 +201,66 @@ export default function AddProductPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.25rem' }}>
                         <div className="input-group">
                             <label className="input-label" htmlFor="name">Product Name *</label>
-                            <input id="name" type="text" className="input-field" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Amul Butter 500g" required />
+                            <div style={{ position: 'relative' }}>
+                                <input id="name" type="text" className="input-field" value={name}
+                                    onChange={e => { setName(e.target.value); setShowNameSuggestions(true); }}
+                                    onFocus={() => setShowNameSuggestions(true)}
+                                    onBlur={() => setTimeout(() => setShowNameSuggestions(false), 200)}
+                                    placeholder="e.g. Amul Butter 500g" required autoComplete="off" />
+                                {showNameSuggestions && filteredNames.length > 0 && (
+                                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: 'white', border: '1px solid #e2e8f0', borderRadius: '0.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', maxHeight: '180px', overflowY: 'auto', marginTop: '0.25rem' }}>
+                                        {filteredNames.slice(0, 8).map(n => (
+                                            <button key={n} type="button" onMouseDown={() => { setName(n); setShowNameSuggestions(false); }}
+                                                style={{ width: '100%', padding: '0.5rem 0.75rem', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', fontSize: '0.85rem', color: '#334155' }}
+                                                onMouseEnter={e => (e.currentTarget.style.background = '#f1f5f9')}
+                                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                                            >{n}</button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="input-group">
                             <label className="input-label">Category *</label>
-                            {!isNewCategory ? (
-                                <select className="input-field" value={section} onChange={e => { if (e.target.value === '__new__') { setIsNewCategory(true); setSection(''); } else setSection(e.target.value); }} required>
-                                    <option value="">Select a category...</option>
-                                    {allSections.map(s => <option key={s} value={s}>{s}</option>)}
-                                    <option value="__new__" style={{ color: '#2563eb', fontWeight: 600 }}>➕ Add new category...</option>
-                                </select>
-                            ) : (
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <input type="text" className="input-field" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} placeholder="New category name..." required autoFocus style={{ flex: 1 }} />
-                                    <button type="button" onClick={() => { setIsNewCategory(false); setNewCategoryName(''); }} style={{ padding: '0 1rem', background: '#f1f5f9', border: '1px solid var(--border)', borderRadius: '0.5rem', cursor: 'pointer', color: '#64748b', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>Cancel</button>
-                                </div>
-                            )}
+                            <div style={{ position: 'relative' }}>
+                                <input type="text" className="input-field" value={isNewCategory ? newCategoryName : (section || categorySearch)}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        setCategorySearch(val);
+                                        setShowCategorySuggestions(true);
+                                        // Check if typed value matches existing
+                                        const match = allSections.find(s => s.toLowerCase() === val.toLowerCase());
+                                        if (match) { setSection(match); setIsNewCategory(false); }
+                                        else { setSection(''); setIsNewCategory(true); setNewCategoryName(val); }
+                                    }}
+                                    onFocus={() => { setShowCategorySuggestions(true); setCategorySearch(''); }}
+                                    onBlur={() => setTimeout(() => setShowCategorySuggestions(false), 200)}
+                                    placeholder="Type to search or add new..." required autoComplete="off"
+                                    style={{ borderColor: isNewCategory && newCategoryName ? '#2563eb' : undefined }}
+                                />
+                                {isNewCategory && newCategoryName && (
+                                    <span style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', fontSize: '0.65rem', fontWeight: 700, color: '#2563eb', background: 'rgba(37,99,235,0.08)', padding: '0.1rem 0.4rem', borderRadius: '0.25rem' }}>NEW</span>
+                                )}
+                                {showCategorySuggestions && (
+                                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: 'white', border: '1px solid #e2e8f0', borderRadius: '0.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', maxHeight: '220px', overflowY: 'auto', marginTop: '0.25rem' }}>
+                                        {filteredSections.map(s => (
+                                            <button key={s} type="button"
+                                                onMouseDown={() => { setSection(s); setIsNewCategory(false); setCategorySearch(''); setShowCategorySuggestions(false); }}
+                                                style={{ width: '100%', padding: '0.5rem 0.75rem', border: 'none', background: section === s ? '#eff6ff' : 'transparent', textAlign: 'left', cursor: 'pointer', fontSize: '0.85rem', color: '#334155', fontWeight: section === s ? 700 : 400 }}
+                                                onMouseEnter={e => (e.currentTarget.style.background = '#f1f5f9')}
+                                                onMouseLeave={e => (e.currentTarget.style.background = section === s ? '#eff6ff' : 'transparent')}
+                                            >{s}{existingSections.includes(s) && !FMCG_CATEGORIES.includes(s) ? ' ✦' : ''}</button>
+                                        ))}
+                                        {categorySearch && !allSections.some(s => s.toLowerCase() === categorySearch.toLowerCase()) && (
+                                            <button type="button"
+                                                onMouseDown={() => { setIsNewCategory(true); setNewCategoryName(categorySearch); setShowCategorySuggestions(false); }}
+                                                style={{ width: '100%', padding: '0.6rem 0.75rem', border: 'none', borderTop: '1px solid #e2e8f0', background: '#eff6ff', textAlign: 'left', cursor: 'pointer', fontSize: '0.85rem', color: '#2563eb', fontWeight: 600 }}
+                                            >➕ Create &quot;{categorySearch}&quot;</button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="input-group">
@@ -215,73 +304,113 @@ export default function AddProductPage() {
                     </div>
                 </div>
 
-                {/* ── Section 3: Measurement ───────────────────*/}
-                <div className="card glass-panel" style={{ padding: '1.75rem', marginBottom: '1.25rem' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', marginBottom: '1.25rem' }}>📏 Measurement</h3>
-                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                        {sectionBox('pieces', <Layers size={18} />, 'Pieces / Count')}
-                        {sectionBox('weight', <Weight size={18} />, 'Weight')}
-                        {sectionBox('volume', <Droplets size={18} />, 'Volume')}
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1.25rem' }}>
-                        <div className="input-group">
-                            <label className="input-label">Value</label>
-                            <input type="number" step="0.1" min="0" className="input-field" value={measurementValue} onChange={e => setMeasurementValue(e.target.value)} placeholder={`e.g. ${measurementType === 'pieces' ? '12' : measurementType === 'weight' ? '500' : '1'}`} />
+                <div className="card glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <div>
+                            <h3 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>📊 Product Variants</h3>
+                            <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>Define different weights, sizes or counts for this product.</p>
                         </div>
-                        <div className="input-group">
-                            <label className="input-label">Unit</label>
-                            <select className="input-field" value={measurementUnit} onChange={e => setMeasurementUnit(e.target.value)}>
+                        
+                        <div style={{ display: 'flex', gap: '0.5rem', background: '#f8fafc', padding: '0.25rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+                            {['pieces', 'weight', 'volume'].map(type => (
+                                <button
+                                    key={type}
+                                    type="button"
+                                    onClick={() => handleMeasurementType(type as any)}
+                                    style={{
+                                        padding: '0.4rem 0.8rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 600,
+                                        background: measurementType === type ? 'white' : 'transparent',
+                                        color: measurementType === type ? 'var(--primary)' : '#64748b',
+                                        boxShadow: measurementType === type ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                        border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem'
+                                    }}
+                                >
+                                    {type === 'pieces' ? <Layers size={14} /> : type === 'weight' ? <Weight size={14} /> : <Droplets size={14} />}
+                                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                                </button>
+                            ))}
+                            <div style={{ borderLeft: '1px solid #e2e8f0', margin: '0 0.25rem' }}></div>
+                            <select 
+                                className="input-field" 
+                                value={measurementUnit} 
+                                onChange={e => setMeasurementUnit(e.target.value)}
+                                style={{ padding: '0.2rem 0.5rem', height: '100%', border: 'none', background: 'transparent', fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)' }}
+                            >
                                 {UNITS[measurementType].options.map(u => <option key={u} value={u}>{u}</option>)}
                             </select>
                         </div>
                     </div>
-                </div>
 
-                {/* ── Section 4: Stock & Expiry ──────────────── */}
-                <div className="card glass-panel" style={{ padding: '1.75rem', marginBottom: '1.25rem' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', marginBottom: '1.25rem' }}>📦 Stock & Expiry</h3>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
-                        <div className="input-group">
-                            <label className="input-label" htmlFor="cartonsCount">No. of Cartons</label>
-                            <input id="cartonsCount" type="number" min="0" className="input-field" value={cartonsCount} onChange={e => setCartonsCount(e.target.value)} placeholder="0" />
-                        </div>
-                        <div className="input-group">
-                            <label className="input-label" htmlFor="itemsPerCarton">Items per Carton</label>
-                            <input id="itemsPerCarton" type="number" min="0" className="input-field" value={itemsPerCarton} onChange={e => setItemsPerCarton(e.target.value)} placeholder="0" />
-                        </div>
-                        {!totalUnitsFromCarton && (
-                            <div className="input-group">
-                                <label className="input-label" htmlFor="manualStock">Direct Stock Count</label>
-                                <input id="manualStock" type="number" min="0" className="input-field" value={manualStock} onChange={e => setManualStock(e.target.value)} placeholder="0" />
+                    <div style={{ overflowX: 'auto', margin: '0 -0.5rem' }}>
+                        <div style={{ minWidth: '850px', padding: '0 0.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 130px 110px 130px 160px 40px', gap: '0.75rem', marginBottom: '0.75rem', padding: '0 0.5rem' }}>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Weight / Value</span>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Price (₹)</span>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Total Stock</span>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Low Alert</span>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Expiry Date</span>
+                                <span></span>
                             </div>
-                        )}
-                        <div className="input-group">
-                            <label className="input-label" htmlFor="lowStockThreshold">Low Stock Alert At</label>
-                            <input id="lowStockThreshold" type="number" min="1" className="input-field" value={lowStockThreshold} onChange={e => setLowStockThreshold(e.target.value)} placeholder="10" />
+                            
+                            {variants.map((v, i) => (
+                                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.2fr 130px 110px 130px 160px 40px', gap: '0.75rem', marginBottom: '0.75rem', background: '#fdfdfd', padding: '0.5rem', borderRadius: '0.75rem', border: '1px solid #f1f5f9' }}>
+                                    <input 
+                                        type="text" 
+                                        className="input-field" 
+                                        value={v.value} 
+                                        onChange={e => updateVariant(i, 'value', e.target.value)} 
+                                        placeholder={`e.g. 20${measurementUnit}`} 
+                                        required 
+                                        style={{ background: 'white' }}
+                                    />
+                                    <input 
+                                        type="number" 
+                                        className="input-field" 
+                                        value={v.price} 
+                                        onChange={e => updateVariant(i, 'price', e.target.value)} 
+                                        placeholder="Price" 
+                                        required 
+                                        style={{ background: 'white' }}
+                                    />
+                                    <input 
+                                        type="number" 
+                                        className="input-field" 
+                                        value={v.stock} 
+                                        onChange={e => updateVariant(i, 'stock', e.target.value)} 
+                                        placeholder="TS" 
+                                        required 
+                                        style={{ background: 'white', fontWeight: 700 }}
+                                    />
+                                    <input 
+                                        type="number" 
+                                        className="input-field" 
+                                        value={v.lowStock} 
+                                        onChange={e => updateVariant(i, 'lowStock', e.target.value)} 
+                                        placeholder="Alert at" 
+                                        required 
+                                        style={{ background: 'white' }}
+                                    />
+                                    <input 
+                                        type="date" 
+                                        className="input-field" 
+                                        value={v.expiry} 
+                                        onChange={e => updateVariant(i, 'expiry', e.target.value)} 
+                                        style={{ background: 'white', fontSize: '0.8rem' }}
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={() => removeVariant(i)} 
+                                        style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} 
+                                        disabled={variants.length === 1}
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            ))}
+                            <button type="button" onClick={addVariant} className="btn-secondary" style={{ width: '100%', marginTop: '0.5rem', border: '1px dashed #cbd5e1', background: 'white', color: 'var(--primary)', fontWeight: 700 }}>
+                                + Add Another Variant
+                            </button>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0.75rem', borderRadius: '0.75rem', background: finalStock > 0 ? 'rgba(34,197,94,0.1)' : 'rgba(148,163,184,0.1)', border: `1px solid ${finalStock > 0 ? 'rgba(34,197,94,0.25)' : 'rgba(148,163,184,0.2)'}` }}>
-                            <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Stock</div>
-                            <div style={{ fontSize: '2rem', fontWeight: 800, color: finalStock > 0 ? '#16a34a' : '#94a3b8' }}>{finalStock}</div>
-                        </div>
-                    </div>
-
-                    {/* Expiry date toggle */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', background: 'rgba(245,158,11,0.05)', border: '1.5px solid rgba(245,158,11,0.2)', borderRadius: '0.75rem', flexWrap: 'wrap' }}>
-                        <input type="checkbox" id="hasExpiry" checked={hasExpiry} onChange={e => setHasExpiry(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: '#f59e0b', cursor: 'pointer' }} />
-                        <label htmlFor="hasExpiry" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', color: '#92400e' }}>
-                            <Calendar size={15} /> This product has an expiry date
-                        </label>
-                        {hasExpiry && (
-                            <input
-                                type="date"
-                                value={expiryDate}
-                                onChange={e => setExpiryDate(e.target.value)}
-                                min={new Date().toISOString().split('T')[0]}
-                                style={{ marginLeft: 'auto', padding: '0.5rem 0.75rem', border: '1.5px solid #fcd34d', borderRadius: '0.5rem', fontSize: '0.875rem', accentColor: '#f59e0b' }}
-                                required={hasExpiry}
-                            />
-                        )}
                     </div>
                 </div>
 

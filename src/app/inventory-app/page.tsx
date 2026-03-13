@@ -36,6 +36,9 @@ export default async function Dashboard() {
           <p className="page-description">Welcome to your inventory and invoice management system.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <Link href="/inventory-app/products/add" className="btn-primary">
+            <Package size={18} /> Add Product
+          </Link>
           <Link href="/inventory-app/invoices/new" className="btn-primary">
             <FileText size={18} /> Make Invoice
           </Link>

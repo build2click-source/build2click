@@ -12,8 +12,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`inventory-theme ${inter.className}`}>
-      <AppShell>{children}</AppShell>
-    </div>
+    <html lang="en">
+      <body className={`inventory-theme ${inter.className}`}>
+        <AppShell>{children}</AppShell>
+      </body>
+    </html>
   );
 }

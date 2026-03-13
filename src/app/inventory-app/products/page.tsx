@@ -11,6 +11,7 @@ interface Product {
     sku: string;
     section: string;
     price: number;
+    discountPercent: number;
     stockQuantity: number;
     lowStockThreshold: number;
     measurementValue?: number | null;
@@ -65,6 +66,21 @@ function ProductsContent() {
         }
     };
 
+    const handleUpdateDiscount = async (id: string, percent: number) => {
+        if (percent < 0 || percent > 100) return;
+        setUpdatingId(id);
+        try {
+            const res = await fetch(`/inventory-app/api/products/${id}/discount`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ discountPercent: percent }),
+            });
+            if (res.ok) setProducts(products.map(p => p.id === id ? { ...p, discountPercent: percent } : p));
+        } finally {
+            setUpdatingId(null);
+        }
+    };
+
     const getDaysUntilExpiry = (dateStr: string) => {
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const exp = new Date(dateStr); exp.setHours(0, 0, 0, 0);
@@ -93,10 +109,12 @@ function ProductsContent() {
     }
 
     const grouped = filtered.reduce((acc, p) => {
-        if (!acc[p.section]) acc[p.section] = [];
-        acc[p.section].push(p);
+        if (!acc[p.section]) acc[p.section] = {};
+        const baseName = p.name.replace(/\s+\d+(g|kg|ml|L|pcs|tabs|bags|sachets|strips).*$/i, '').trim();
+        if (!acc[p.section][baseName]) acc[p.section][baseName] = [];
+        acc[p.section][baseName].push(p);
         return acc;
-    }, {} as Record<string, Product[]>);
+    }, {} as Record<string, Record<string, Product[]>>);
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -203,57 +221,75 @@ function ProductsContent() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '2px solid var(--border)' }}>
                                 <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: 0 }}>{section}</h2>
                                 <span style={{ background: 'var(--primary)', color: 'white', padding: '0.125rem 0.625rem', borderRadius: '9999px', fontSize: '0.72rem', fontWeight: 600 }}>
-                                    {items.length} items
+                                    {Object.keys(items).length} items
                                 </span>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1.25rem' }}>
-                                {items.map(product => {
-                                    const isLow = product.stockQuantity < product.lowStockThreshold;
-                                    const days = product.expiryDate ? getDaysUntilExpiry(product.expiryDate) : null;
-                                    const expStyle = days !== null ? getExpiryStyle(days) : null;
-
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 360px), 1fr))', gap: '1.5rem' }}>
+                                {Object.entries(items).map(([baseName, variants]) => {
+                                    const first = variants[0];
                                     return (
-                                        <div key={product.id} className="card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                            {/* Top */}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                <div style={{ flex: 1, minWidth: 0 }}>
-                                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0, color: 'var(--foreground)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</h3>
-                                                    <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontFamily: 'monospace' }}>{product.sku}</div>
+                                        <div key={baseName} className="card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1.25rem' }}>
+                                            {/* Top: Common Name */}
+                                            <div style={{ paddingBottom: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>{baseName}</h3>
+                                                <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.4rem' }}>
+                                                    <span style={{ fontSize: '0.68rem', fontWeight: 600, padding: '0.15rem 0.5rem', borderRadius: '1rem', background: 'rgba(139,92,246,0.08)', color: '#7c3aed' }}>
+                                                        {first.store?.branch || first.store?.name || 'Main Store'}
+                                                    </span>
                                                 </div>
-                                                <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1rem', flexShrink: 0, marginLeft: '0.5rem' }}>₹{product.price.toLocaleString('en-IN')}</div>
                                             </div>
 
-                                            {/* Badges row */}
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                                                {product.measurementValue && product.measurementUnit && (
-                                                    <span style={{ fontSize: '0.68rem', fontWeight: 600, padding: '0.2rem 0.5rem', borderRadius: '1rem', background: 'rgba(37,99,235,0.08)', color: '#2563eb' }}>
-                                                        {product.measurementValue}{product.measurementUnit}
-                                                    </span>
-                                                )}
-                                                {expStyle && (
-                                                    <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '0.2rem 0.5rem', borderRadius: '1rem', background: expStyle.bg, color: expStyle.color, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                                        <Calendar size={10} /> {expStyle.label}
-                                                    </span>
-                                                )}
-                                                {product.store && (
-                                                    <span style={{ fontSize: '0.68rem', fontWeight: 600, padding: '0.2rem 0.5rem', borderRadius: '1rem', background: 'rgba(139,92,246,0.08)', color: '#7c3aed' }}>
-                                                        {product.store.branch || product.store.name}
-                                                    </span>
-                                                )}
-                                            </div>
+                                            {/* Variants List */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                                {variants.sort((a, b) => (a.measurementValue || 0) - (b.measurementValue || 0)).map(product => {
+                                                    const isLow = product.stockQuantity < product.lowStockThreshold;
+                                                    const days = product.expiryDate ? getDaysUntilExpiry(product.expiryDate) : null;
+                                                    const expStyle = days !== null ? getExpiryStyle(days) : null;
+                                                    const variantLabel = product.name.replace(baseName, '').trim() || `${product.measurementValue}${product.measurementUnit}`;
 
-                                            {/* Stock controls */}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem', borderTop: '1px solid #f1f5f9' }}>
-                                                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: isLow ? '#ef4444' : '#22c55e', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                                    {isLow && <AlertTriangle size={13} />}
-                                                    {product.stockQuantity} {isLow ? `/ ${product.lowStockThreshold} ⚠` : 'in stock'}
-                                                </span>
-                                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: '#f8fafc', padding: '0.25rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-                                                    <button onClick={() => handleUpdateStock(product.id, product.stockQuantity - 1)} className="btn-secondary" style={{ padding: '0.125rem', minWidth: 'auto', height: '26px', width: '26px' }} disabled={updatingId === product.id}><Minus size={12} /></button>
-                                                    <input type="number" value={product.stockQuantity} onChange={e => handleUpdateStock(product.id, parseInt(e.target.value) || 0)} style={{ width: '36px', border: 'none', background: 'transparent', textAlign: 'center', fontWeight: 700, fontSize: '0.85rem' }} />
-                                                    <button onClick={() => handleUpdateStock(product.id, product.stockQuantity + 1)} className="btn-secondary" style={{ padding: '0.125rem', minWidth: 'auto', height: '26px', width: '26px' }} disabled={updatingId === product.id}><Plus size={12} /></button>
-                                                </div>
+                                                    return (
+                                                        <div key={product.id} style={{ padding: '0.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem', borderBottom: variants.indexOf(product) < variants.length - 1 ? '1px dashed #f1f5f9' : 'none' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)' }}>{variantLabel}</span>
+                                                                    {expStyle && (
+                                                                        <span style={{ fontSize: '0.62rem', fontWeight: 700, padding: '0.1rem 0.45rem', borderRadius: '1rem', background: expStyle.bg, color: expStyle.color }}>
+                                                                            {expStyle.label}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>₹{product.price.toLocaleString('en-IN')}</div>
+                                                            </div>
+
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: isLow ? '#ef4444' : '#22c55e', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                                                        {isLow && <AlertTriangle size={12} />}
+                                                                        {product.stockQuantity} {isLow ? `/ ${product.lowStockThreshold}` : 'pcs'}
+                                                                    </span>
+                                                                </div>
+
+                                                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: product.discountPercent > 0 ? 'rgba(239,68,68,0.05)' : '#f8fafc', padding: '0.2rem', borderRadius: '0.5rem', border: `1px solid ${product.discountPercent > 0 ? '#fca5a5' : '#e2e8f0'}` }}>
+                                                                        <span style={{ fontSize: '0.6rem', fontWeight: 700, color: product.discountPercent > 0 ? '#ef4444' : '#64748b' }}>% OFF</span>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={product.discountPercent}
+                                                                            onChange={e => handleUpdateDiscount(product.id, parseFloat(e.target.value) || 0)}
+                                                                            style={{ width: '32px', border: 'none', background: 'transparent', textAlign: 'center', fontWeight: 700, fontSize: '0.8rem', color: product.discountPercent > 0 ? '#ef4444' : 'inherit', padding: 0 }}
+                                                                        />
+                                                                    </div>
+                                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: '#f8fafc', padding: '0.15rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0' }}>
+                                                                        <button onClick={() => handleUpdateStock(product.id, product.stockQuantity - 1)} className="btn-secondary" style={{ padding: 0, minWidth: 'auto', height: '22px', width: '22px', fontSize: '10px' }} disabled={updatingId === product.id}>-</button>
+                                                                        <input type="number" value={product.stockQuantity} onChange={e => handleUpdateStock(product.id, parseInt(e.target.value) || 0)} style={{ width: '28px', border: 'none', background: 'transparent', textAlign: 'center', fontWeight: 700, fontSize: '0.8rem', padding: 0 }} />
+                                                                        <button onClick={() => handleUpdateStock(product.id, product.stockQuantity + 1)} className="btn-secondary" style={{ padding: 0, minWidth: 'auto', height: '22px', width: '22px', fontSize: '10px' }} disabled={updatingId === product.id}>+</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     );

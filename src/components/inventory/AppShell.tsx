@@ -9,11 +9,24 @@ import LogoutButton from '@/components/inventory/LogoutButton';
 export default function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [user, setUser] = useState<{ username: string; role: string } | null>(null);
 
     // Close mobile menu on route change
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [pathname]);
+
+    // Fetch current user session
+    useEffect(() => {
+        fetch('/inventory-app/api/auth/me')
+            .then(r => r.ok ? r.json() : null)
+            .then(d => { if (d && d.username) setUser(d); })
+            .catch(() => {});
+    }, []);
+
+    const displayName = user?.username || 'User';
+    const displayRole = user?.role || '';
+    const initials = displayName.charAt(0).toUpperCase();
 
     // Login page gets no shell at all — it is fully standalone
     if (pathname === '/inventory-app/login') {
@@ -95,16 +108,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         <Package size={18} />
                         Products
                     </Link>
-                    <Link href="/inventory-app/products/add" style={{
-                        display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem',
-                        borderRadius: '0.5rem', textDecoration: 'none',
-                        color: pathname === '/inventory-app/products/add' ? 'var(--foreground)' : '#64748b',
-                        background: pathname === '/inventory-app/products/add' ? 'var(--input)' : 'transparent',
-                        fontWeight: 500,
-                    }}>
-                        <PlusCircle size={18} />
-                        Add Product
-                    </Link>
+
                     <Link href="/inventory-app/invoices" style={{
                         display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem',
                         borderRadius: '0.5rem', textDecoration: 'none',
@@ -199,9 +203,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                                 color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontWeight: 'bold', fontSize: '0.875rem'
                             }}>
-                                A
+                                {initials}
                             </div>
-                            <span style={{ fontWeight: 600, color: 'var(--foreground)', fontSize: '0.9rem' }}>Admin</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+                                <span style={{ fontWeight: 600, color: 'var(--foreground)', fontSize: '0.9rem' }}>{displayName}</span>
+                                {displayRole && (
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#64748b', textTransform: 'capitalize' }}>{displayRole}</span>
+                                )}
+                            </div>
                         </div>
                         <LogoutButton />
                     </div>

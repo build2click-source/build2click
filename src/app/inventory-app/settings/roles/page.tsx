@@ -8,7 +8,8 @@ interface RolePermissions {
     permissions: {
         dashboard: boolean;
         products: boolean;
-        invoices: boolean;
+        view_invoices: boolean;
+        create_invoices: boolean;
         analytics: boolean;
         settings: boolean;
     };
@@ -17,7 +18,8 @@ interface RolePermissions {
 const SECTIONS = [
     { key: 'dashboard', label: 'Dashboard', desc: 'View metrics and recent activity' },
     { key: 'products', label: 'Products & Inventory', desc: 'Manage products, stock, and categories' },
-    { key: 'invoices', label: 'Invoices', desc: 'Create and view invoices' },
+    { key: 'view_invoices', label: 'View Invoices', desc: 'View and search existing invoices' },
+    { key: 'create_invoices', label: 'Create Invoice', desc: 'Create new invoices for customers' },
     { key: 'analytics', label: 'Analytics', desc: 'View revenue charts and reports' },
     { key: 'settings', label: 'System Settings', desc: 'Manage stores, users, and roles' },
 ];

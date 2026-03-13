@@ -36,6 +36,20 @@ export default function InvoicesPage() {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
     const [filterStatus, setFilterStatus] = useState<string>('ALL');
+    const [canCreate, setCanCreate] = useState(false);
+
+    useEffect(() => {
+        // Fetch current user's role, then check create_invoices permission
+        fetch('/inventory-app/api/auth/me')
+            .then(r => r.json())
+            .then(({ role }) => {
+                if (!role) return;
+                return fetch(`/inventory-app/api/roles/check?role=${role}&path=/inventory-app/invoices/new`);
+            })
+            .then(r => r?.json())
+            .then(d => setCanCreate(d?.allowed ?? false))
+            .catch(() => setCanCreate(false));
+    }, []);
 
     const fetchInvoices = useCallback(async () => {
         setIsLoading(true);
@@ -76,7 +90,7 @@ export default function InvoicesPage() {
                     </h1>
                     <p className="page-description">View, search, and manage all generated invoices.</p>
                 </div>
-                <Link href="/inventory-app/invoices/new" className="btn-primary">
+                <Link href="/inventory-app/invoices/new" className="btn-primary" style={{ display: canCreate ? undefined : 'none' }}>
                     <Plus size={18} /> Create Invoice
                 </Link>
             </div>
