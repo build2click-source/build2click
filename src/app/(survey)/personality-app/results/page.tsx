@@ -21,7 +21,7 @@ export default async function ResultsPage() {
     // Ensure user is logged in
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        redirect("/per-app/login");
+        redirect("/enneagram/login");
     }
 
     // Fetch the user's most recent submission
@@ -43,7 +43,7 @@ export default async function ResultsPage() {
                 <h2 className="text-3xl font-bold">No Results Found</h2>
                 <p className="text-foreground/60 max-w-md">You haven&apos;t taken the assessment yet. Discover your true Enneagram type today.</p>
                 <Link
-                    href="/per-app/test"
+                    href="/enneagram/test"
                     className="bg-primary text-primary-foreground font-bold px-8 py-4 rounded-full hover:scale-105 transition-transform"
                 >
                     Take the Test

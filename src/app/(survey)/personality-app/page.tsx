@@ -9,7 +9,7 @@ export default function Home() {
       <ParticleBackground />
 
       {/* Hero Badge */}
-      <Link href="/per-app/about" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 hover:bg-primary/20 transition-colors">
+      <Link href="/enneagram/about" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 hover:bg-primary/20 transition-colors">
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -30,7 +30,7 @@ export default function Home() {
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-8">
         <Link
-          href="/per-app/test"
+          href="/enneagram/test"
           className="group relative flex items-center justify-center gap-2 bg-foreground text-background px-8 py-4 rounded-full font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(99,102,241,0.4)] active:scale-95"
         >
           <span className="relative z-10 flex items-center gap-2">

@@ -20,21 +20,21 @@ export async function login(formData: FormData) {
         .single();
 
     if (!profile) {
-        return redirect(`/per-app/signup?message=Account not created. Please sign up here.`);
+        return redirect(`/enneagram/signup?message=Account not created. Please sign up here.`);
     }
 
     const { error } = await supabase.auth.signInWithPassword(data);
 
     if (error) {
-        return redirect(`/per-app/login?message=${error.message}`);
+        return redirect(`/enneagram/login?message=${error.message}`);
     }
 
     revalidatePath("/", "layout");
 
     if (profile.role === "ADMIN") {
-        redirect("/per-app");
+        redirect("/enneagram");
     } else {
-        redirect("/per-app/test?welcome=true");
+        redirect("/enneagram/test?welcome=true");
     }
 }
 
@@ -58,9 +58,9 @@ export async function signup(formData: FormData) {
     });
 
     if (error) {
-        return redirect(`/per-app/signup?message=${error.message}`);
+        return redirect(`/enneagram/signup?message=${error.message}`);
     }
 
     revalidatePath("/", "layout");
-    redirect("/per-app/test?welcome=true");
+    redirect("/enneagram/test?welcome=true");
 }

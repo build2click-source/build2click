@@ -9,7 +9,7 @@ export default async function AdminDashboard() {
     // 1. Verify Authentication
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        redirect("/per-app/login");
+        redirect("/enneagram/login");
     }
 
     // 2. Verify ADMIN Role
@@ -20,7 +20,7 @@ export default async function AdminDashboard() {
         .single();
 
     if (!profile || profile.role !== "ADMIN") {
-        redirect("/per-app");
+        redirect("/enneagram");
     }
 
     // 3. Fetch all questions so we can map IDs to text

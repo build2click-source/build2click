@@ -19,7 +19,7 @@ export default function MobileNav({ user, username, isAdmin }: NavProps) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
-                    <Link href="/per-app" className="flex items-center gap-2 group">
+                    <Link href="/enneagram" className="flex items-center gap-2 group">
                         <div className="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
                             <Compass className="w-6 h-6 text-primary" />
                         </div>
@@ -28,14 +28,14 @@ export default function MobileNav({ user, username, isAdmin }: NavProps) {
 
                     {/* Desktop Navigation */}
                     <div className="hidden sm:flex items-center gap-4">
-                        <Link href="/per-app/test" className="text-sm font-medium hover:text-primary transition-colors whitespace-nowrap">
+                        <Link href="/enneagram/test" className="text-sm font-medium hover:text-primary transition-colors whitespace-nowrap">
                             Take the Test
                         </Link>
 
                         {isAdmin && (
                             <>
                                 <div className="h-4 w-px bg-foreground/15"></div>
-                                <Link href="/per-app/admin" className="text-sm font-semibold text-red-500 hover:text-red-600 transition-colors whitespace-nowrap">
+                                <Link href="/enneagram/admin" className="text-sm font-semibold text-red-500 hover:text-red-600 transition-colors whitespace-nowrap">
                                     Admin
                                 </Link>
                             </>
@@ -44,7 +44,7 @@ export default function MobileNav({ user, username, isAdmin }: NavProps) {
                         <div className="h-4 w-px bg-foreground/15"></div>
 
                         {!user ? (
-                            <Link href="/per-app/login" className="flex items-center gap-2 text-sm font-medium bg-foreground/5 hover:bg-foreground/10 px-4 py-2 rounded-full transition-all active:scale-95">
+                            <Link href="/enneagram/login" className="flex items-center gap-2 text-sm font-medium bg-foreground/5 hover:bg-foreground/10 px-4 py-2 rounded-full transition-all active:scale-95">
                                 <LogIn className="w-4 h-4" />
                                 <span>Sign In</span>
                             </Link>
@@ -87,7 +87,7 @@ export default function MobileNav({ user, username, isAdmin }: NavProps) {
                 <div className="sm:hidden bg-background border-b border-foreground/10 shadow-lg absolute w-full animate-in slide-in-from-top-2 duration-200">
                     <div className="px-4 pt-2 pb-4 space-y-1 flex flex-col items-center text-center">
                         <Link
-                            href="/per-app/test"
+                            href="/enneagram/test"
                             onClick={() => setIsOpen(false)}
                             className="block px-3 py-3 rounded-md text-base font-medium hover:text-primary hover:bg-foreground/5 transition-colors w-full"
                         >
@@ -96,7 +96,7 @@ export default function MobileNav({ user, username, isAdmin }: NavProps) {
 
                         {isAdmin && (
                             <Link
-                                href="/per-app/admin"
+                                href="/enneagram/admin"
                                 onClick={() => setIsOpen(false)}
                                 className="block px-3 py-3 rounded-md text-base font-semibold text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors w-full"
                             >
@@ -108,7 +108,7 @@ export default function MobileNav({ user, username, isAdmin }: NavProps) {
 
                         {!user ? (
                             <Link
-                                href="/per-app/login"
+                                href="/enneagram/login"
                                 onClick={() => setIsOpen(false)}
                                 className="flex items-center justify-center gap-2 w-full px-3 py-3 text-base font-medium bg-foreground text-background hover:bg-foreground/90 rounded-xl transition-colors"
                             >

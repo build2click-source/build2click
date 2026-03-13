@@ -13,7 +13,7 @@ export async function submitAssessment(answers: Answer[], durationSeconds: numbe
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        redirect("/per-app/login");
+        redirect("/enneagram/login");
     }
 
     // 1. Fetch all questions to map them to their Enneagram type
@@ -70,5 +70,5 @@ export async function submitAssessment(answers: Answer[], durationSeconds: numbe
     }
 
     // 5. Redirect to results
-    redirect("/per-app/results");
+    redirect("/enneagram/results");
 }

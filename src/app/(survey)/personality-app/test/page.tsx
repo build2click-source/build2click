@@ -12,7 +12,7 @@ export default async function TestPage() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect("/per-app/login?message=Please sign in to take the assessment.");
+        redirect("/enneagram/login?message=Please sign in to take the assessment.");
     }
 
     // Fetch user profile for role
@@ -52,7 +52,7 @@ export default async function TestPage() {
                 </div>
                 <div className="mt-12">
                     <Link
-                        href="/per-app/results"
+                        href="/enneagram/results"
                         className="inline-flex items-center gap-2 bg-foreground text-background px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(99,102,241,0.4)] active:scale-95"
                     >
                         View Details

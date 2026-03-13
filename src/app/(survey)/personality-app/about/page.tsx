@@ -99,7 +99,7 @@ export default function AboutPage() {
                     The Enneagram is a system of personality typing that describes patterns in how people interpret the world and manage their emotions. Beyond just describing traits, it maps out nine core motivations that drive human behavior.
                 </p>
                 <Link
-                    href="/per-app/test"
+                    href="/enneagram/test"
                     className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:bg-primary/90 transition-all active:scale-95 shadow-xl shadow-primary/20"
                 >
                     Discover Your Type

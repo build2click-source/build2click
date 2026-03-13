@@ -78,7 +78,7 @@ export default async function SignupPage(props: { searchParams: Promise<{ messag
                         </button>
                         <div className="text-center mt-4">
                             <span className="text-sm text-foreground/60">Already have an account? </span>
-                            <Link href="/per-app/login" className="text-sm font-semibold text-purple-600 hover:underline">
+                            <Link href="/enneagram/login" className="text-sm font-semibold text-purple-600 hover:underline">
                                 Sign In
                             </Link>
                         </div>

@@ -21,11 +21,11 @@ const nextConfig: NextConfig = {
       ],
       afterFiles: [
         {
-          source: '/per-app',
+          source: '/enneagram',
           destination: '/personality-app',
         },
         {
-          source: '/per-app/:path*',
+          source: '/enneagram/:path*',
           destination: '/personality-app/:path*',
         },
       ],
