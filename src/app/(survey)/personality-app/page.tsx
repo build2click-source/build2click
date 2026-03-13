@@ -3,8 +3,28 @@ import { ArrowRight, Brain, Shield, Zap } from "lucide-react";
 import ParticleBackground from "@/components/ParticleBackground";
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Build2Click Enneagram Test",
+    "description": "A highly accurate, free Enneagram test to discover your unique personality type, core motivations, and deepest fears. Instant results.",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "All",
+    "url": "https://www.build2click.in/enneagram",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  };
+
   return (
     <div className="min-h-[85vh] flex flex-col justify-center items-center text-center space-y-12 animate-in fade-in zoom-in duration-700 relative z-10">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Immersive Particle JS Background */}
       <ParticleBackground />
 

@@ -10,8 +10,53 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Enneagram Discover | Premium Personality Test",
-  description: "Discover your true self with our comprehensive Enneagram test.",
+  title: "Free Enneagram Test | Discover Your True Personality Type",
+  description: "Take our highly accurate, free Enneagram test to discover your unique personality type, core motivations, and deepest fears. Get instant results and start your journey of self-discovery.",
+  keywords: ["enneagram", "enneagram test", "free enneagram test", "personality test", "enneagram types", "discover enneagram", "psychology", "self discovery", "enneagram assessment"],
+  authors: [{ name: "Build2Click" }],
+  creator: "Build2Click",
+  publisher: "Build2Click",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: "https://www.build2click.in/enneagram",
+  },
+  openGraph: {
+    title: "Free Enneagram Personality Test",
+    description: "Discover your Enneagram type with our comprehensive assessment. Fast, accurate, and completely free.",
+    url: "https://www.build2click.in/enneagram",
+    siteName: "Build2Click Enneagram",
+    images: [
+      {
+        url: "https://www.build2click.in/icon.png",
+        width: 800,
+        height: 600,
+        alt: "Enneagram Discover Test",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free Enneagram Personality Test",
+    description: "Take the scientifically-backed Enneagram test to uncover your true self.",
+    images: ["https://www.build2click.in/icon.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
