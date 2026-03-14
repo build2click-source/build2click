@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Package, Search, Plus, Loader2, Minus, AlertTriangle, Calendar, Store, ChevronDown, X } from 'lucide-react';
+import { Package, Search, Plus, Loader2, Minus, AlertTriangle, Calendar, Store, ChevronDown, X, Check } from 'lucide-react';
 
 interface Product {
     id: string;
@@ -33,6 +33,7 @@ function ProductsContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [localEdits, setLocalEdits] = useState<Record<string, { stockQuantity?: number; discountPercent?: number }>>({});
 
     useEffect(() => {
         fetch('/inventory-app/api/stores').then(r => r.json()).then(setStores);
@@ -51,31 +52,52 @@ function ProductsContent() {
 
     useEffect(() => { fetchProducts(selectedStoreId); }, [selectedStoreId, fetchProducts]);
 
-    const handleUpdateStock = async (id: string, newStock: number) => {
+    const handleUpdateStockLocal = (id: string, newStock: number) => {
         if (newStock < 0) return;
-        setUpdatingId(id);
-        try {
-            const res = await fetch(`/inventory-app/api/products/${id}/stock`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stockQuantity: newStock }),
-            });
-            if (res.ok) setProducts(products.map(p => p.id === id ? { ...p, stockQuantity: newStock } : p));
-        } finally {
-            setUpdatingId(null);
-        }
+        setLocalEdits(prev => ({
+            ...prev,
+            [id]: { ...prev[id], stockQuantity: newStock }
+        }));
     };
 
-    const handleUpdateDiscount = async (id: string, percent: number) => {
+    const handleUpdateDiscountLocal = (id: string, percent: number) => {
         if (percent < 0 || percent > 100) return;
+        setLocalEdits(prev => ({
+            ...prev,
+            [id]: { ...prev[id], discountPercent: percent }
+        }));
+    };
+
+    const saveLocalEdit = async (id: string) => {
+        const edit = localEdits[id];
+        if (!edit) return;
         setUpdatingId(id);
         try {
-            const res = await fetch(`/inventory-app/api/products/${id}/discount`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ discountPercent: percent }),
+            if (edit.stockQuantity !== undefined) {
+                await fetch(`/inventory-app/api/products/${id}/stock`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stockQuantity: edit.stockQuantity }),
+                });
+            }
+            if (edit.discountPercent !== undefined) {
+                await fetch(`/inventory-app/api/products/${id}/discount`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ discountPercent: edit.discountPercent }),
+                });
+            }
+            // Update products state with final values
+            setProducts(prev => prev.map(p => p.id === id ? { 
+                ...p, 
+                stockQuantity: edit.stockQuantity ?? p.stockQuantity,
+                discountPercent: edit.discountPercent ?? p.discountPercent
+            } : p));
+            setLocalEdits(prev => {
+                const next = { ...prev };
+                delete next[id];
+                return next;
             });
-            if (res.ok) setProducts(products.map(p => p.id === id ? { ...p, discountPercent: percent } : p));
         } finally {
             setUpdatingId(null);
         }
@@ -270,22 +292,33 @@ function ProductsContent() {
                                                                     </span>
                                                                 </div>
 
-                                                                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: product.discountPercent > 0 ? 'rgba(239,68,68,0.05)' : '#f8fafc', padding: '0.2rem', borderRadius: '0.5rem', border: `1px solid ${product.discountPercent > 0 ? '#fca5a5' : '#e2e8f0'}` }}>
-                                                                        <span style={{ fontSize: '0.6rem', fontWeight: 700, color: product.discountPercent > 0 ? '#ef4444' : '#64748b' }}>% OFF</span>
-                                                                        <input
-                                                                            type="number"
-                                                                            value={product.discountPercent}
-                                                                            onChange={e => handleUpdateDiscount(product.id, parseFloat(e.target.value) || 0)}
-                                                                            style={{ width: '32px', border: 'none', background: 'transparent', textAlign: 'center', fontWeight: 700, fontSize: '0.8rem', color: product.discountPercent > 0 ? '#ef4444' : 'inherit', padding: 0 }}
-                                                                        />
+                                                                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                                                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: (localEdits[product.id]?.discountPercent ?? product.discountPercent) > 0 ? 'rgba(239,68,68,0.05)' : '#f8fafc', padding: '0.2rem', borderRadius: '0.5rem', border: `1px solid ${(localEdits[product.id]?.discountPercent ?? product.discountPercent) > 0 ? '#fca5a5' : '#e2e8f0'}` }}>
+                                                                            <span style={{ fontSize: '0.6rem', fontWeight: 700, color: (localEdits[product.id]?.discountPercent ?? product.discountPercent) > 0 ? '#ef4444' : '#64748b' }}>% OFF</span>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    value={localEdits[product.id]?.discountPercent ?? product.discountPercent}
+                                                                                    onChange={e => handleUpdateDiscountLocal(product.id, parseFloat(e.target.value) || 0)}
+                                                                                    style={{ width: '42px', border: 'none', background: 'transparent', textAlign: 'center', fontWeight: 700, fontSize: '0.8rem', color: (localEdits[product.id]?.discountPercent ?? product.discountPercent) > 0 ? '#ef4444' : 'inherit', padding: 0 }}
+                                                                                />
+                                                                        </div>
+                                                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: '#f8fafc', padding: '0.15rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0' }}>
+                                                                            <button onClick={() => handleUpdateStockLocal(product.id, (localEdits[product.id]?.stockQuantity ?? product.stockQuantity) - 1)} className="btn-secondary" style={{ padding: 0, minWidth: 'auto', height: '22px', width: '22px', fontSize: '10px' }} disabled={updatingId === product.id}>-</button>
+                                                                            <input type="number" value={localEdits[product.id]?.stockQuantity ?? product.stockQuantity} onChange={e => handleUpdateStockLocal(product.id, parseInt(e.target.value) || 0)} style={{ width: '44px', border: 'none', background: 'transparent', textAlign: 'center', fontWeight: 700, fontSize: '0.8rem', padding: 0 }} />
+                                                                            <button onClick={() => handleUpdateStockLocal(product.id, (localEdits[product.id]?.stockQuantity ?? product.stockQuantity) + 1)} className="btn-secondary" style={{ padding: 0, minWidth: 'auto', height: '22px', width: '22px', fontSize: '10px' }} disabled={updatingId === product.id}>+</button>
+                                                                        </div>
+                                                                        {localEdits[product.id] && (
+                                                                            <button 
+                                                                                onClick={() => saveLocalEdit(product.id)}
+                                                                                className="btn-primary"
+                                                                                style={{ padding: '0.3rem', minWidth: 'auto', height: '28px', width: '28px', borderRadius: '0.5rem' }}
+                                                                                disabled={updatingId === product.id}
+                                                                                title="Save changes"
+                                                                            >
+                                                                                {updatingId === product.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                                                            </button>
+                                                                        )}
                                                                     </div>
-                                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: '#f8fafc', padding: '0.15rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0' }}>
-                                                                        <button onClick={() => handleUpdateStock(product.id, product.stockQuantity - 1)} className="btn-secondary" style={{ padding: 0, minWidth: 'auto', height: '22px', width: '22px', fontSize: '10px' }} disabled={updatingId === product.id}>-</button>
-                                                                        <input type="number" value={product.stockQuantity} onChange={e => handleUpdateStock(product.id, parseInt(e.target.value) || 0)} style={{ width: '28px', border: 'none', background: 'transparent', textAlign: 'center', fontWeight: 700, fontSize: '0.8rem', padding: 0 }} />
-                                                                        <button onClick={() => handleUpdateStock(product.id, product.stockQuantity + 1)} className="btn-secondary" style={{ padding: 0, minWidth: 'auto', height: '22px', width: '22px', fontSize: '10px' }} disabled={updatingId === product.id}>+</button>
-                                                                    </div>
-                                                                </div>
                                                             </div>
                                                         </div>
                                                     );

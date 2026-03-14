@@ -284,7 +284,7 @@ export default function AddProductPage() {
                 {/* ── Section 2: Pricing ───────────────────── */}
                 <div className="card glass-panel" style={{ padding: '1.75rem', marginBottom: '1.25rem' }}>
                     <h3 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', marginBottom: '1.25rem' }}>💰 Pricing</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1.25rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '1.25rem' }}>
                         <div className="input-group">
                             <label className="input-label" htmlFor="price">Base Price (₹) *</label>
                             <input id="price" type="number" step="0.01" min="0" className="input-field" value={price} onChange={e => setPrice(e.target.value)} required />
@@ -305,13 +305,13 @@ export default function AddProductPage() {
                 </div>
 
                 <div className="card glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                        <div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <div style={{ flex: '1 1 min-content' }}>
                             <h3 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>📊 Product Variants</h3>
                             <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>Define different weights, sizes or counts for this product.</p>
                         </div>
                         
-                        <div style={{ display: 'flex', gap: '0.5rem', background: '#f8fafc', padding: '0.25rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: '#f8fafc', padding: '0.25rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
                             {['pieces', 'weight', 'volume'].map(type => (
                                 <button
                                     key={type}
@@ -319,10 +319,12 @@ export default function AddProductPage() {
                                     onClick={() => handleMeasurementType(type as any)}
                                     style={{
                                         padding: '0.4rem 0.8rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 600,
-                                        background: measurementType === type ? 'white' : 'transparent',
-                                        color: measurementType === type ? 'var(--primary)' : '#64748b',
+                                        background: measurementType === type ? (type === 'pieces' ? 'var(--primary)' : 'white') : 'transparent',
+                                        color: measurementType === type ? (type === 'pieces' ? 'white' : 'var(--primary)') : '#64748b',
                                         boxShadow: measurementType === type ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                                        border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem'
+                                        border: type === 'pieces' ? `2px solid ${measurementType === 'pieces' ? 'var(--primary)' : '#e2e8f0'}` : 'none',
+                                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
+                                        transition: 'all 0.2s'
                                     }}
                                 >
                                     {type === 'pieces' ? <Layers size={14} /> : type === 'weight' ? <Weight size={14} /> : <Droplets size={14} />}
@@ -334,26 +336,28 @@ export default function AddProductPage() {
                                 className="input-field" 
                                 value={measurementUnit} 
                                 onChange={e => setMeasurementUnit(e.target.value)}
-                                style={{ padding: '0.2rem 0.5rem', height: '100%', border: 'none', background: 'transparent', fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)' }}
+                                style={{ 
+                                    padding: '0.2rem 0.5rem', height: '100%', 
+                                    border: '1px solid var(--border)', background: '#f1f5f9', 
+                                    fontSize: '0.75rem', fontWeight: 700, borderRadius: '0.4rem',
+                                    color: 'var(--primary)', outline: 'none'
+                                }}
                             >
                                 {UNITS[measurementType].options.map(u => <option key={u} value={u}>{u}</option>)}
                             </select>
                         </div>
                     </div>
 
-                    <div style={{ overflowX: 'auto', margin: '0 -0.5rem' }}>
-                        <div style={{ minWidth: '850px', padding: '0 0.5rem' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 130px 110px 130px 160px 40px', gap: '0.75rem', marginBottom: '0.75rem', padding: '0 0.5rem' }}>
-                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Weight / Value</span>
-                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Price (₹)</span>
-                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Total Stock</span>
-                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Low Alert</span>
-                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Expiry Date</span>
-                                <span></span>
-                            </div>
-                            
-                            {variants.map((v, i) => (
-                                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.2fr 130px 110px 130px 160px 40px', gap: '0.75rem', marginBottom: '0.75rem', background: '#fdfdfd', padding: '0.5rem', borderRadius: '0.75rem', border: '1px solid #f1f5f9' }}>
+                    <div style={{ padding: '0 0.25rem' }}>
+                        {variants.map((v, i) => (
+                            <div key={i} style={{ 
+                                display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem', 
+                                background: 'rgba(37,99,235,0.03)', padding: '1rem', borderRadius: '0.75rem', 
+                                border: '1px solid rgba(37,99,235,0.15)', boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+                                position: 'relative'
+                            }}>
+                                <div style={{ flex: '1 1 180px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Weight / Value</label>
                                     <input 
                                         type="text" 
                                         className="input-field" 
@@ -361,8 +365,11 @@ export default function AddProductPage() {
                                         onChange={e => updateVariant(i, 'value', e.target.value)} 
                                         placeholder={`e.g. 20${measurementUnit}`} 
                                         required 
-                                        style={{ background: 'white' }}
+                                        style={{ background: 'white', border: '1px solid #e2e8f0' }}
                                     />
+                                </div>
+                                <div style={{ flex: '1 1 120px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Price (₹)</label>
                                     <input 
                                         type="number" 
                                         className="input-field" 
@@ -370,8 +377,11 @@ export default function AddProductPage() {
                                         onChange={e => updateVariant(i, 'price', e.target.value)} 
                                         placeholder="Price" 
                                         required 
-                                        style={{ background: 'white' }}
+                                        style={{ background: 'white', border: '1px solid #e2e8f0' }}
                                     />
+                                </div>
+                                <div style={{ flex: '1 1 90px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Stock</label>
                                     <input 
                                         type="number" 
                                         className="input-field" 
@@ -379,8 +389,11 @@ export default function AddProductPage() {
                                         onChange={e => updateVariant(i, 'stock', e.target.value)} 
                                         placeholder="TS" 
                                         required 
-                                        style={{ background: 'white', fontWeight: 700 }}
+                                        style={{ background: 'white', fontWeight: 700, border: '1px solid #e2e8f0' }}
                                     />
+                                </div>
+                                <div style={{ flex: '1 1 110px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Alert at</label>
                                     <input 
                                         type="number" 
                                         className="input-field" 
@@ -388,34 +401,46 @@ export default function AddProductPage() {
                                         onChange={e => updateVariant(i, 'lowStock', e.target.value)} 
                                         placeholder="Alert at" 
                                         required 
-                                        style={{ background: 'white' }}
+                                        style={{ background: 'white', border: '1px solid #e2e8f0' }}
                                     />
+                                </div>
+                                <div style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Expiry Date</label>
                                     <input 
                                         type="date" 
                                         className="input-field" 
                                         value={v.expiry} 
                                         onChange={e => updateVariant(i, 'expiry', e.target.value)} 
-                                        style={{ background: 'white', fontSize: '0.8rem' }}
+                                        style={{ background: 'white', fontSize: '0.8rem', border: '1px solid #e2e8f0' }}
                                     />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.5rem' }}>
                                     <button 
                                         type="button" 
                                         onClick={() => removeVariant(i)} 
-                                        style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} 
+                                        style={{ 
+                                            border: '1px solid #fca5a5', background: '#fef2f2', color: '#ef4444', 
+                                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            width: '32px', height: '32px', borderRadius: '50%', transition: 'all 0.2s',
+                                            marginTop: '1.2rem'
+                                        }} 
+                                        onMouseEnter={e => (e.currentTarget.style.background = '#fee2e2')}
+                                        onMouseLeave={e => (e.currentTarget.style.background = '#fef2f2')}
                                         disabled={variants.length === 1}
                                     >
-                                        <X size={18} />
+                                        <X size={16} />
                                     </button>
                                 </div>
-                            ))}
-                            <button type="button" onClick={addVariant} className="btn-secondary" style={{ width: '100%', marginTop: '0.5rem', border: '1px dashed #cbd5e1', background: 'white', color: 'var(--primary)', fontWeight: 700 }}>
-                                + Add Another Variant
-                            </button>
-                        </div>
+                            </div>
+                        ))}
+                        <button type="button" onClick={addVariant} className="btn-secondary" style={{ width: '100%', marginTop: '0.5rem', border: '1px dashed #cbd5e1', background: 'white', color: 'var(--primary)', fontWeight: 700 }}>
+                            + Add Another Variant
+                        </button>
                     </div>
                 </div>
 
                 {/* Submit */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '1rem' }}>
                     <button type="button" className="btn-secondary" onClick={() => router.push('/inventory-app/products')} disabled={isSubmitting}>Cancel</button>
                     <button type="submit" className="btn-primary" disabled={isSubmitting}>
                         <Save size={18} /> {isSubmitting ? 'Saving...' : 'Save Product'}
