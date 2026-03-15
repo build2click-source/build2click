@@ -20,8 +20,8 @@ if (typeof window !== 'undefined') {
     Font.register({
         family: 'Roboto',
         fonts: [
-            { src: `${window.location.origin}/fonts/Roboto-Regular.ttf` },
-            { src: `${window.location.origin}/fonts/Roboto-Bold.ttf`, fontWeight: 'bold' }
+            { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-light-webfont.ttf' },
+            { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf', fontWeight: 'bold' }
         ]
     });
 }
@@ -219,12 +219,13 @@ export default function InvoiceViewer() {
     );
 
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 350px', gap: '2rem' }}>
+        <div className="invoice-page-wrapper" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+
 
             {/* Left: Premium HTML Invoice Layout */}
-            <div className="card glass-panel html-invoice-container" style={{ background: 'white', padding: '3rem', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.05)' }}>
+            <div className="card glass-panel html-invoice-container" style={{ background: 'white', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.05)' }}>
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4rem', gap: '2rem' }}>
+                <div className="invoice-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '2rem' }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e3a8a', marginBottom: '0.5rem', whiteSpace: 'nowrap' }}>Inventory Pro Solutions</div>
                         <div style={{ color: '#64748b', fontSize: '0.875rem', lineHeight: '1.5' }}>
@@ -233,8 +234,8 @@ export default function InvoiceViewer() {
                             {gstEnabled && <><span style={{ fontWeight: 600 }}>GSTIN:</span> 27AACCV9981K1ZA</>}
                         </div>
                     </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e3a8a', letterSpacing: '-0.02em', marginBottom: '1rem' }}>INVOICE</div>
+                    <div className="invoice-meta" style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <div className="invoice-title-text" style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e3a8a', letterSpacing: '-0.02em', marginBottom: '1rem' }}>INVOICE</div>
                         <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{invoice.invoiceNumber}</div>
                         <div style={{ color: '#64748b', fontSize: '0.875rem' }}>{format(new Date(invoice.createdAt), 'dd MMMM yyyy')}</div>
                     </div>
@@ -247,64 +248,58 @@ export default function InvoiceViewer() {
                     {invoice.customerPhone && <div style={{ color: '#64748b', marginTop: '0.25rem' }}>{invoice.customerPhone.startsWith('+91') ? invoice.customerPhone : `+91 ${invoice.customerPhone}`}</div>}
                 </div>
 
-                {/* Items Table */}
-                <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-                    <colgroup>
-                        <col style={{ width: '32%' }} />
-                        <col style={{ width: '6%' }} />
-                        <col style={{ width: '15%' }} />
-                        <col style={{ width: '15%' }} />
-                        {gstEnabled && <col style={{ width: '14%' }} />}
-                        <col style={{ width: gstEnabled ? '18%' : '28%' }} />
-                    </colgroup>
-                    <thead>
-                        <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                            <th style={{ textAlign: 'left', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</th>
-                            <th style={{ textAlign: 'center', padding: '0.875rem 0.5rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Qty</th>
-                            <th style={{ textAlign: 'right', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Rate</th>
-                            <th style={{ textAlign: 'right', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Discount</th>
-                            {gstEnabled && <th style={{ textAlign: 'right', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>GST</th>}
-                            <th style={{ textAlign: 'right', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {invoice.items.map((item) => {
-                            const gross = item.priceAtTime * item.quantity;
-                            const discountAmt = gross * (item.discountAtTime / 100);
-                            const afterDiscount = gross - discountAmt;
-                            const gstAmt = afterDiscount * (item.gstAtTime / 100);
-                            const lineTotal = afterDiscount + gstAmt;
-                            return (
-                                <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                    <td style={{ padding: '1rem', fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 0 }} title={item.product?.name || 'Deleted Product'}>
-                                        {item.product?.name || 'Deleted Product'}
-                                        {item.discountAtTime > 0 && (
-                                            <span style={{ display: 'block', fontSize: '0.72rem', color: '#22c55e', fontWeight: 500, marginTop: '2px', whiteSpace: 'normal' }}>
-                                                {item.discountAtTime}% discount applied
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td style={{ padding: '1rem 0.5rem', textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{item.quantity}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#64748b', whiteSpace: 'nowrap' }}>₹{item.priceAtTime.toLocaleString('en-IN')}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'right', whiteSpace: 'nowrap', color: discountAmt > 0 ? '#ef4444' : '#94a3b8' }}>
-                                        {discountAmt > 0 ? `−₹${discountAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}
-                                    </td>
-                                    {gstEnabled && (
-                                        <td style={{ padding: '1rem', textAlign: 'right', color: '#64748b', whiteSpace: 'nowrap' }}>
-                                            <div style={{ fontWeight: 600 }}>{item.gstAtTime}%</div>
-                                            <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>₹{gstAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                {/* Items Table with Horizontal Scroll for Mobile */}
+                <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                        <thead>
+                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                <th style={{ textAlign: 'left', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</th>
+                                <th style={{ textAlign: 'center', padding: '0.875rem 0.5rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Qty</th>
+                                <th style={{ textAlign: 'right', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Rate</th>
+                                <th style={{ textAlign: 'right', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Discount</th>
+                                {gstEnabled && <th style={{ textAlign: 'right', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>GST</th>}
+                                <th style={{ textAlign: 'right', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {invoice.items.map((item) => {
+                                const gross = item.priceAtTime * item.quantity;
+                                const discountAmt = gross * (item.discountAtTime / 100);
+                                const afterDiscount = gross - discountAmt;
+                                const gstAmt = afterDiscount * (item.gstAtTime / 100);
+                                const lineTotal = afterDiscount + gstAmt;
+                                return (
+                                    <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                        <td style={{ padding: '1rem', fontWeight: 600, color: '#1e293b' }}>
+                                            {item.product?.name || 'Deleted Product'}
+                                            {item.discountAtTime > 0 && (
+                                                <span style={{ display: 'block', fontSize: '0.72rem', color: '#22c55e', fontWeight: 500, marginTop: '2px' }}>
+                                                    {item.discountAtTime}% discount applied
+                                                </span>
+                                            )}
                                         </td>
-                                    )}
-                                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 700, color: '#1e3a8a', whiteSpace: 'nowrap' }}>₹{lineTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                        <td style={{ padding: '1rem 0.5rem', textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{item.quantity}</td>
+                                        <td style={{ padding: '1rem', textAlign: 'right', color: '#64748b', whiteSpace: 'nowrap' }}>₹{item.priceAtTime.toLocaleString('en-IN')}</td>
+                                        <td style={{ padding: '1rem', textAlign: 'right', whiteSpace: 'nowrap', color: discountAmt > 0 ? '#ef4444' : '#94a3b8' }}>
+                                            {discountAmt > 0 ? `−₹${discountAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}
+                                        </td>
+                                        {gstEnabled && (
+                                            <td style={{ padding: '1rem', textAlign: 'right', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                                <div style={{ fontWeight: 600 }}>{item.gstAtTime}%</div>
+                                                <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>₹{gstAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                            </td>
+                                        )}
+                                        <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 700, color: '#1e3a8a', whiteSpace: 'nowrap' }}>₹{lineTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
 
                 {/* Totals */}
-                <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'flex-end' }}>
-                    <div style={{ width: '300px' }}>
+                <div className="invoice-totals" style={{ marginTop: '4rem', display: 'flex', justifyContent: 'flex-end' }}>
+                    <div style={{ width: '100%', maxWidth: '300px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', color: '#64748b' }}>
                             <span>Subtotal</span>
                             <span style={{ fontWeight: 600, color: '#1e293b' }}>₹{invoice.subTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
@@ -412,6 +407,44 @@ export default function InvoiceViewer() {
             </div>
 
             <style jsx>{`
+                .invoice-page-wrapper {
+                    display: grid;
+                    grid-template-columns: minmax(0, 1fr) 350px;
+                    gap: 2rem;
+                }
+                .html-invoice-container {
+                    padding: 3rem;
+                }
+                .invoice-header {
+                    margin-bottom: 4rem;
+                }
+                @media (max-width: 1024px) {
+                    .invoice-page-wrapper {
+                        grid-template-columns: 1fr;
+                    }
+                    .action-sidebar {
+                        position: static !important;
+                    }
+                }
+                @media (max-width: 640px) {
+                    .html-invoice-container {
+                        padding: 1.25rem;
+                    }
+                    .invoice-header {
+                        flex-direction: column;
+                        margin-bottom: 2rem;
+                        gap: 1.5rem !important;
+                    }
+                    .invoice-meta {
+                        text-align: left !important;
+                    }
+                    .invoice-title-text {
+                        font-size: 2rem !important;
+                    }
+                    .invoice-totals {
+                        justify-content: flex-start !important;
+                    }
+                }
                 @media print {
                     /* Hide everything except the invoice container */
                     body * { visibility: hidden; }
