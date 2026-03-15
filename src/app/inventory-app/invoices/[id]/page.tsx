@@ -20,8 +20,8 @@ if (typeof window !== 'undefined') {
     Font.register({
         family: 'Roboto',
         fonts: [
-            { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-light-webfont.ttf' },
-            { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf', fontWeight: 'bold' }
+            { src: '/fonts/Roboto-Regular.ttf' },
+            { src: '/fonts/Roboto-Bold.ttf', fontWeight: 'bold' }
         ]
     });
 }
@@ -235,9 +235,9 @@ export default function InvoiceViewer() {
                         </div>
                     </div>
                     <div className="invoice-meta" style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div className="invoice-title-text" style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e3a8a', letterSpacing: '-0.02em', marginBottom: '1rem' }}>INVOICE</div>
-                        <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{invoice.invoiceNumber}</div>
-                        <div style={{ color: '#64748b', fontSize: '0.875rem' }}>{format(new Date(invoice.createdAt), 'dd MMMM yyyy')}</div>
+                        <div className="invoice-title-text" style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e3a8a', letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>INVOICE</div>
+                        <div className="invoice-id-text" style={{ fontSize: '1.125rem', fontWeight: 700 }}>{invoice.invoiceNumber}</div>
+                        <div className="invoice-date-text" style={{ color: '#64748b', fontSize: '0.875rem' }}>{format(new Date(invoice.createdAt), 'dd MMMM yyyy')}</div>
                     </div>
                 </div>
 
@@ -248,9 +248,9 @@ export default function InvoiceViewer() {
                     {invoice.customerPhone && <div style={{ color: '#64748b', marginTop: '0.25rem' }}>{invoice.customerPhone.startsWith('+91') ? invoice.customerPhone : `+91 ${invoice.customerPhone}`}</div>}
                 </div>
 
-                {/* Items Table with Horizontal Scroll for Mobile */}
-                <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                {/* Desktop Items Table */}
+                <div className="desktop-invoice-table" style={{ width: '100%' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                                 <th style={{ textAlign: 'left', padding: '0.875rem 1rem', color: '#475569', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</th>
@@ -295,6 +295,38 @@ export default function InvoiceViewer() {
                             })}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Item Cards */}
+                <div className="mobile-invoice-items" style={{ display: 'none', flexDirection: 'column', gap: '1rem' }}>
+                    {invoice.items.map((item) => {
+                        const gross = item.priceAtTime * item.quantity;
+                        const discountAmt = gross * (item.discountAtTime / 100);
+                        const afterDiscount = gross - discountAmt;
+                        const gstAmt = afterDiscount * (item.gstAtTime / 100);
+                        const lineTotal = afterDiscount + gstAmt;
+                        return (
+                            <div key={item.id} style={{ padding: '1rem', border: '1px solid #f1f5f9', borderRadius: '1rem', background: '#f8fafc' }}>
+                                <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '1rem', marginBottom: '0.75rem' }}>{item.product?.name || 'Deleted Product'}</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', fontSize: '0.85rem' }}>
+                                    <div style={{ color: '#64748b' }}>Qty: <strong style={{ color: '#1e293b' }}>{item.quantity}</strong></div>
+                                    <div style={{ color: '#64748b', textAlign: 'right' }}>Rate: <strong style={{ color: '#1e293b' }}>₹{item.priceAtTime.toLocaleString('en-IN')}</strong></div>
+                                    {item.discountAtTime > 0 && (
+                                        <div style={{ color: '#ef4444', gridColumn: 'span 2' }}>
+                                            Discount: <strong>-₹{discountAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong> ({item.discountAtTime}%)
+                                        </div>
+                                    )}
+                                    {gstEnabled && (
+                                        <div style={{ color: '#64748b' }}>Tax: <strong style={{ color: '#1e293b' }}>₹{gstAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong> ({item.gstAtTime}%)</div>
+                                    )}
+                                    <div style={{ gridColumn: 'span 2', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontWeight: 700, color: '#64748b' }}>Subtotal</span>
+                                        <span style={{ fontWeight: 900, color: '#1e3a8a', fontSize: '1.1rem' }}>₹{lineTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 {/* Totals */}
@@ -427,22 +459,42 @@ export default function InvoiceViewer() {
                     }
                 }
                 @media (max-width: 640px) {
+                    .desktop-invoice-table {
+                        display: none !important;
+                    }
+                    .mobile-invoice-items {
+                        display: flex !important;
+                    }
                     .html-invoice-container {
                         padding: 1.25rem;
                     }
                     .invoice-header {
                         flex-direction: column;
                         margin-bottom: 2rem;
-                        gap: 1.5rem !important;
+                        gap: 1.25rem !important;
                     }
                     .invoice-meta {
                         text-align: left !important;
+                        border-top: 1px solid #f1f5f9;
+                        padding-top: 1.25rem;
+                        width: 100%;
                     }
                     .invoice-title-text {
-                        font-size: 2rem !important;
+                        font-size: 1.5rem !important;
+                        margin-bottom: 0.25rem !important;
+                    }
+                    .invoice-id-text {
+                        font-size: 1rem !important;
+                    }
+                    .invoice-date-text {
+                        font-size: 0.75rem !important;
                     }
                     .invoice-totals {
                         justify-content: flex-start !important;
+                        margin-top: 2rem !important;
+                    }
+                    .invoice-totals > div {
+                        max-width: 100% !important;
                     }
                 }
                 @media print {
