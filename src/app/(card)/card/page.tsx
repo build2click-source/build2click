@@ -64,8 +64,8 @@ END:VCARD`;
                     </div>
 
                     {/* Services */}
-                    <p className="font-serif text-brown text-[11.5px] leading-relaxed px-4 tracking-wide font-bold text-center">
-                        Web Development <span className="text-gold mx-1">|</span> Brand Identity <span className="text-gold mx-1">|</span> Software Solutions
+                    <p className="font-serif text-brown text-[clamp(7.5px,2.7vw,11.5px)] whitespace-nowrap leading-relaxed px-1 sm:px-4 tracking-normal min-[400px]:tracking-wide font-bold text-center w-full">
+                        Web Development <span className="text-gold mx-0.5 min-[400px]:mx-1">|</span> Brand Identity <span className="text-gold mx-0.5 min-[400px]:mx-1">|</span> Software Solutions
                     </p>
                 </div>
 
