@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-cream: #FDFCF6;
+  --color-gold-light: #FCE79D;
+  --color-gold: #D4AF37;
+  --color-gold-dark: #AA7C11;
+  --color-brown: #3E2723;
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-poppins);
+}
+
+body {
+    background-color: #EFEBE1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* The Card Container */
+.e-card {
+    background-color: #FDFCF6;
+    width: 100%;
+    max-width: 420px;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-left: 1px solid #EAE3C8;
+    border-right: 1px solid #EAE3C8;
+}
+
+@media (min-width: 420px) {
+    .e-card {
+        min-height: 850px;
+        border-radius: 20px;
+        margin: 20px 0;
+        border: 2px solid rgba(212, 175, 55, 0.3);
+    }
+}
+
+/* Gold Gradient Text */
+.gold-text {
+    background: linear-gradient(to right, #AA7C11 0%, #D4AF37 25%, #FCE79D 50%, #D4AF37 75%, #AA7C11 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% auto;
+    animation: shine 5s linear infinite;
+}
+
+/* Gold Gradient Backgrounds */
+.gold-bg {
+    background: linear-gradient(135deg, #AA7C11 0%, #D4AF37 25%, #FCE79D 50%, #D4AF37 75%, #AA7C11 100%);
+    background-size: 200% auto;
+    animation: shine 5s linear infinite;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* Gold Dust Effect simulating the physical card */
+.gold-dust {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(253, 252, 246, 0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(10px);
+}
+
+.dust-1 { top: 20%; left: -10%; }
+.dust-2 { bottom: 30%; right: -20%; }
+
+/* Interactive Buttons */
+.contact-btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.contact-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.contact-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(212, 175, 55, 0.2);
+    border-color: #D4AF37;
+}
+
+.contact-btn:hover::before {
+    opacity: 1;
+}
+
+.contact-btn:hover i {
+    transform: scale(1.1);
+}
+
+.action-icon {
+    transition: transform 0.3s ease;
+}
+
+/* Floating Save Button */
+.save-btn-container {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+    background: linear-gradient(to top, #FDFCF6 80%, rgba(253,252,246,0) 100%);
+    z-index: 50;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
