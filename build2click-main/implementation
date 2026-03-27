@@ -1,0 +1,869 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    Zap, ArrowRight, CheckCircle2, Mail, Phone, MapPin,
+    Code2, Smartphone, Palette, TrendingUp, Users, Target,
+    MessageSquare, LayoutGrid, Clock, ChevronRight, ChevronLeft, Download,
+    Instagram, Linkedin, Twitter, Sparkles, Loader2, Send
+} from 'lucide-react';
+
+// --- Custom CSS for Advanced Animations & Styles ---
+const GlobalStyles = () => (
+    <style>{`
+    :root {
+      --cream: #FAFAF7;
+      --charcoal: #1C1C1C;
+      --gold: #C8A153;
+      --slate: #6B7280;
+    }
+    
+    body {
+      background-color: var(--cream);
+      color: var(--charcoal);
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    /* Typography Overrides */
+    h1, h2, h3, .heading-font {
+      font-family: 'Montserrat', system-ui, sans-serif;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    /* Hollow Text Effect */
+    .text-outline-gold {
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--gold);
+    }
+
+    /* Infinite Marquee */
+    .marquee-container {
+      overflow: hidden;
+      white-space: nowrap;
+      display: flex;
+      width: 100%;
+      background-color: var(--charcoal);
+      padding: 1rem 0;
+    }
+    
+    .marquee-content {
+      display: flex;
+      animation: marquee 30s linear infinite;
+    }
+    
+    .marquee-content:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); } /* Scrolls exactly half its duplicated width */
+    }
+
+    /* Custom Fade-In Animation */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+    
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+
+    /* Luxury Card Hover */
+    .luxury-card {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .luxury-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px -15px rgba(200, 161, 83, 0.15);
+      border-color: rgba(200, 161, 83, 0.3);
+    }
+    
+    /* Image Warm Overlay */
+    .warm-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent, rgba(28, 28, 28, 0.8));
+      mix-blend-mode: multiply;
+    }
+  `}</style>
+);
+
+// --- Shared Components ---
+const Button = ({ children, variant = 'primary', className = '', onClick, icon }) => {
+    const baseStyle = "inline-flex items-center justify-center font-bold px-6 py-3 rounded-full transition-all duration-300";
+    const variants = {
+        primary: "bg-[#C8A153] text-white hover:bg-[#b08c46] hover:shadow-lg hover:-translate-y-0.5",
+        secondary: "bg-[#1C1C1C] text-white hover:bg-[#333] hover:shadow-lg hover:-translate-y-0.5",
+        outline: "border-2 border-[#C8A153] text-[#C8A153] hover:bg-[#C8A153] hover:text-white"
+    };
+
+    return (
+        <button onClick={onClick} className={`${baseStyle} ${variants[variant]} ${className}`}>
+            {children}
+            {icon && <span className="ml-2">{icon}</span>}
+        </button>
+    );
+};
+
+const Badge = ({ text }) => (
+    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-white border border-gray-200 shadow-sm mb-6 animate-fade-in">
+        <span className="w-2 h-2 rounded-full bg-[#C8A153] mr-2"></span>
+        <span className="text-xs font-bold tracking-widest text-[#C8A153] uppercase">{text}</span>
+    </div>
+);
+
+const AnimatedCounter = ({ end, duration = 2000, suffix = "" }) => {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        let startTime = null;
+        let animationFrame;
+
+        const animate = (currentTime) => {
+            if (!startTime) startTime = currentTime;
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            // easeOutExpo for a premium deceleration effect
+            const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
+            setCount(Math.floor(easeProgress * end));
+
+            if (progress < 1) {
+                animationFrame = requestAnimationFrame(animate);
+            }
+        };
+
+        animationFrame = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationFrame);
+    }, [end, duration]);
+
+    return <>{count}{suffix}</>;
+};
+
+const ScrollReveal = ({ children, delay = 0, className = "" }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    const domRef = useRef();
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setIsVisible(true);
+                    observer.unobserve(domRef.current);
+                }
+            },
+            { threshold: 0.1 } // Triggers when 10% of the element is visible
+        );
+
+        const currentRef = domRef.current;
+        if (currentRef) observer.observe(currentRef);
+        return () => {
+            if (currentRef) observer.unobserve(currentRef);
+        };
+    }, []);
+
+    return (
+        <div
+            ref={domRef}
+            className={`transition-all duration-1000 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'} ${className}`}
+            style={{ transitionDelay: `${delay}ms` }}
+        >
+            {children}
+        </div>
+    );
+};
+
+// --- Hero Carousel Component ---
+const HeroCarousel = () => {
+    const [current, setCurrent] = useState(0);
+    const slides = [
+        {
+            tag: "WEB ENGINEERING",
+            title: "Architecting Scale.",
+            desc: "High-performance digital storefronts built to convert.",
+            img: "https://images.unsplash.com/photo-1618761714954-0b8cd0026356?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            tag: "BRAND DESIGN",
+            title: "Identity That Resonates.",
+            desc: "Memorable logo creation and comprehensive brand identity systems.",
+            img: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+            tag: "SOFTWARE SOLUTIONS",
+            title: "Enterprise Systems.",
+            desc: "Custom web apps and APIs built with maintainability in mind.",
+            img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80"
+        }
+    ];
+
+    const nextSlide = () => setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    const prevSlide = () => setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+
+    useEffect(() => {
+        const timer = setInterval(nextSlide, 5000); // Auto-scroll every 5 seconds
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="relative w-full h-[450px] lg:h-[600px] rounded-[2rem] overflow-hidden shadow-2xl group bg-[#1C1C1C] z-20">
+            {slides.map((slide, index) => (
+                <div
+                    key={index}
+                    className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                        }`}
+                >
+                    {/* Double gradient overlay for optimal text legibility and rich contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1C] via-[#1C1C1C]/40 to-transparent z-10 mix-blend-multiply"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1C] via-transparent to-transparent z-10"></div>
+
+                    <img src={slide.img} alt={slide.title} className="w-full h-full object-cover" />
+
+                    <div className="absolute bottom-0 left-0 p-8 z-20 w-full">
+                        <div className="flex flex-col gap-6">
+                            <div className="max-w-md">
+                                <span className="inline-block px-3 py-1 rounded-full border border-[#C8A153] text-[#C8A153] text-[10px] font-bold tracking-widest uppercase mb-4 shadow-sm backdrop-blur-md bg-[#1C1C1C]/30">
+                                    {slide.tag}
+                                </span>
+                                <h3 className="text-3xl lg:text-4xl text-white heading-font mb-2 leading-tight">{slide.title}</h3>
+                                <p className="text-gray-300 text-sm">{slide.desc}</p>
+                            </div>
+
+                            {/* Pagination Dots and Navigation Arrows */}
+                            <div className="flex items-center justify-between w-full mt-2">
+                                <div className="flex space-x-2 items-center">
+                                    {slides.map((_, dotIdx) => (
+                                        <button
+                                            key={dotIdx}
+                                            onClick={() => setCurrent(dotIdx)}
+                                            className={`h-1 rounded-full transition-all duration-300 ${dotIdx === current ? 'w-8 bg-[#C8A153]' : 'w-3 bg-[#C8A153]/30 hover:bg-[#C8A153]/60'}`}
+                                        />
+                                    ))}
+                                </div>
+
+                                <div className="flex space-x-3">
+                                    <button onClick={prevSlide} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[#C8A153] hover:border-[#C8A153] transition-all backdrop-blur-sm">
+                                        <ChevronLeft size={18} />
+                                    </button>
+                                    <button onClick={nextSlide} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[#C8A153] hover:border-[#C8A153] transition-all backdrop-blur-sm">
+                                        <ChevronRight size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+// --- Pages ---
+
+const HomePage = ({ navigate }) => (
+    <div className="pt-24 pb-20 overflow-hidden">
+        {/* Hero Section */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+            <div className="z-10 relative">
+                <Badge text="The Gold Standard of Engineering" />
+                <h1 className="text-5xl lg:text-7xl leading-[1.1] mb-6">
+                    <span className="block text-outline-gold animate-fade-in">BUILDING</span>
+                    <span className="block text-[#1C1C1C] animate-fade-in delay-100">TO YOUR</span>
+                    <span className="block text-[#C8A153] animate-fade-in delay-200">FINAL CLICK.</span>
+                </h1>
+                <p className="text-[#6B7280] text-lg lg:text-xl mb-8 max-w-lg animate-fade-in delay-300">
+                    We engineer high-conversion digital flagships. Where obsessive user-centric design meets robust, scalable architecture to turn visitors into high-value clients.
+                </p>
+                <div className="flex flex-wrap gap-4 animate-fade-in delay-300">
+                    <Button onClick={() => navigate('contact')} icon={<ArrowRight size={18} />}>Initiate Project</Button>
+                    <Button variant="outline" onClick={() => navigate('services')}>Our Services</Button>
+                </div>
+            </div>
+            <div className="relative animate-fade-in delay-200 mt-12 lg:mt-0 z-20 w-full">
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#C8A153]/20 to-transparent rounded-3xl -rotate-3 transform scale-105 hidden lg:block"></div>
+                <HeroCarousel />
+            </div>
+        </div>
+
+        {/* Marquee */}
+        <ScrollReveal delay={100}>
+            <div className="marquee-container mt-12 mb-24">
+                <div className="marquee-content gap-12 text-[#C8A153]/80 font-bold tracking-widest uppercase text-xl heading-font">
+                    {/* Duplicated for smooth loop */}
+                    <span>InnovateJS</span><span>•</span><span>CloudScale</span><span>•</span><span>NextGen AI</span><span>•</span><span>Quantum Flow</span><span>•</span><span>DataSync</span><span>•</span><span>TechCorp</span><span>•</span><span>Spring Boot</span><span>•</span>
+                    <span>InnovateJS</span><span>•</span><span>CloudScale</span><span>•</span><span>NextGen AI</span><span>•</span><span>Quantum Flow</span><span>•</span><span>DataSync</span><span>•</span><span>TechCorp</span><span>•</span><span>Spring Boot</span><span>•</span>
+                </div>
+            </div>
+        </ScrollReveal>
+
+        {/* Capabilities Grid */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-32">
+            <ScrollReveal>
+                <div className="mb-12">
+                    <h2 className="text-[#C8A153] tracking-widest uppercase text-sm font-bold mb-2">Our Capabilities</h2>
+                    <h3 className="text-4xl lg:text-5xl text-[#1C1C1C] heading-font">Engineering Luxury<br />Digital Solutions.</h3>
+                </div>
+            </ScrollReveal>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { icon: <Code2 />, title: "High-End Web Dev", desc: "Architecting performance-first digital storefronts that turn browsers into buyers.", features: ["Custom UI/UX", "SEO Optimization", "Headless CMS"] },
+                    { icon: <Smartphone />, title: "Mobile App Strategy", desc: "Seamless, fluid mobile applications designed for retention and high-frequency engagement.", features: ["iOS & Android", "Real-Time Sync", "Push Strategy"] },
+                    { icon: <Palette />, title: "Premium Branding", desc: "Strategic visual storytelling that positions your business at the top of its market tier.", features: ["Logo Systems", "Style Guides", "Brand Voice"] },
+                    { icon: <TrendingUp />, title: "Performance Marketing", desc: "Data-driven growth engines built to scale your conversions and maximize return on spend.", features: ["PPC Management", "Funnel Design", "Analytics"] }
+                ].map((card, idx) => (
+                    <ScrollReveal key={idx} delay={idx * 150} className="h-full">
+                        <div className="h-full bg-white p-8 rounded-3xl shadow-sm border border-gray-100 luxury-card relative group overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#C8A153] to-transparent transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                            <div className="w-12 h-12 rounded-xl bg-[#FAFAF7] text-[#C8A153] flex items-center justify-center mb-6">{card.icon}</div>
+                            <h4 className="text-xl font-bold mb-4">{card.title}</h4>
+                            <p className="text-[#6B7280] text-sm mb-6">{card.desc}</p>
+                            <ul className="space-y-2 mt-auto">
+                                {card.features.map((f, i) => (
+                                    <li key={i} className="flex items-center text-xs font-bold text-[#1C1C1C] uppercase tracking-wider">
+                                        <CheckCircle2 size={14} className="text-[#C8A153] mr-2" /> {f}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </ScrollReveal>
+                ))}
+            </div>
+        </div>
+
+        {/* Operational Software Solutions */}
+        <div className="bg-[#1C1C1C] text-white py-24 mb-24">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                <ScrollReveal>
+                    <div className="text-center mb-16 max-w-3xl mx-auto">
+                        <h3 className="text-4xl lg:text-5xl heading-font mb-6">Beyond the Browser. We Build Engines for Growth.</h3>
+                        <p className="text-gray-400">We don't just design beautiful websites; we architect specialized internal tools to streamline your operations, automate workflows, and elevate your bottom line.</p>
+                    </div>
+                </ScrollReveal>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                    <ScrollReveal delay={100}>
+                        <div className="relative rounded-3xl overflow-hidden group h-80 luxury-card warm-overlay">
+                            <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80" alt="Billing" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <div className="absolute bottom-0 left-0 p-8 z-10">
+                                <h4 className="text-2xl font-bold mb-2 heading-font">Billing & Invoicing</h4>
+                                <p className="text-gray-300 text-sm">Automate your cash flow, generate professional invoices, and track revenue in real-time with custom dashboards.</p>
+                            </div>
+                        </div>
+                    </ScrollReveal>
+                    <ScrollReveal delay={300}>
+                        <div className="relative rounded-3xl overflow-hidden group h-80 luxury-card warm-overlay">
+                            <img src="https://images.unsplash.com/photo-1586528116311-ad8ed7c80a30?auto=format&fit=crop&w=800&q=80" alt="Inventory" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <div className="absolute bottom-0 left-0 p-8 z-10">
+                                <h4 className="text-2xl font-bold mb-2 heading-font">Inventory Management</h4>
+                                <p className="text-gray-300 text-sm">Keep perfect track of stock levels, automate reordering, and optimize your supply chain logistics.</p>
+                            </div>
+                        </div>
+                    </ScrollReveal>
+                </div>
+            </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <ScrollReveal delay={200}>
+            <div className="text-center px-6 mb-12">
+                <h2 className="text-3xl lg:text-4xl heading-font mb-4">Ready to Grow Your Business Online?</h2>
+                <p className="text-[#6B7280] mb-8 max-w-2xl mx-auto">Whether you're launching a new brand, redesigning your website, or looking for reliable maintenance services, Build2Click is your digital partner.</p>
+                <Button onClick={() => navigate('contact')} icon={<ChevronRight />}>Get Started Now</Button>
+            </div>
+        </ScrollReveal>
+    </div>
+);
+
+const AboutPage = () => (
+    <div className="pt-32 pb-20 animate-fade-in">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center mb-16">
+            <h1 className="text-5xl lg:text-6xl heading-font mb-6">Builders, Thinkers, Innovators.</h1>
+            <p className="text-xl text-[#6B7280] leading-relaxed">
+                For too long, ambitious brands have had to choose: hire a creative agency that couldn't code, or a dev shop that couldn't design. Build2Click bridges that gap. We believe the most powerful digital products are born when rigorous system architecture meets obsessive, human-centric design.
+            </p>
+        </div>
+
+        {/* Image Collage - Based on about1.png */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-24 grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="md:col-span-8 rounded-[2rem] overflow-hidden h-64 md:h-[400px] luxury-card group animate-fade-in delay-100">
+                <img
+                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
+                    alt="Team Collaboration"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+            </div>
+            <div className="md:col-span-4 grid grid-cols-2 md:grid-cols-1 grid-rows-2 gap-6">
+                <div className="rounded-[2rem] overflow-hidden h-40 md:h-[188px] luxury-card group animate-fade-in delay-200">
+                    <img
+                        src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80"
+                        alt="Code on screen"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                </div>
+                <div className="rounded-[2rem] overflow-hidden h-40 md:h-[188px] luxury-card group animate-fade-in delay-300">
+                    <img
+                        src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80"
+                        alt="Design Planning"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                </div>
+            </div>
+        </div>
+
+        {/* Trust Banner */}
+        <div className="bg-white border-y border-gray-200 py-12 mb-24 shadow-sm animate-fade-in">
+            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                <div className="p-4">
+                    <div className="text-5xl font-bold text-[#1C1C1C] heading-font mb-2">
+                        <AnimatedCounter end={160} suffix="+" />
+                    </div>
+                    <div className="text-[#C8A153] uppercase tracking-widest font-bold text-sm">Happy Clients</div>
+                </div>
+                <div className="p-4">
+                    <div className="text-5xl font-bold text-[#1C1C1C] heading-font mb-2">
+                        <AnimatedCounter end={250} suffix="+" />
+                    </div>
+                    <div className="text-[#C8A153] uppercase tracking-widest font-bold text-sm">Completed Projects</div>
+                </div>
+                <div className="p-4">
+                    <div className="text-5xl font-bold text-[#1C1C1C] heading-font mb-2">
+                        <AnimatedCounter end={99} suffix="%" />
+                    </div>
+                    <div className="text-[#C8A153] uppercase tracking-widest font-bold text-sm">Client Satisfaction</div>
+                </div>
+            </div>
+        </div>
+
+        {/* Core Values */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-32">
+            <h2 className="text-3xl font-bold heading-font text-center mb-12">Our Core Values</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { icon: <Target />, title: "Resilience by Design", desc: "We build fault-tolerant systems meant to last and scale with your ambition." },
+                    { icon: <Users />, title: "User-Centricity", desc: "Every pixel, interaction, and line of code serves the end-user's journey." },
+                    { icon: <MessageSquare />, title: "Transparent Collaboration", desc: "No black boxes. You have total visibility into our engineering process." },
+                    { icon: <Zap />, title: "Continuous Evolution", desc: "We don't just launch; we iterate, optimize, and keep you ahead of the curve." }
+                ].map((value, idx) => (
+                    <div key={idx} className={`bg-[#1C1C1C] text-white p-8 rounded-3xl luxury-card animate-fade-in delay-${(idx + 1) * 100}`}>
+                        <div className="text-[#C8A153] mb-6">{value.icon}</div>
+                        <h3 className="text-lg font-bold mb-3">{value.title}</h3>
+                        <p className="text-gray-400 text-sm">{value.desc}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        {/* Philosophy & Team - Based on about3 option.png */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-24 text-center">
+            <h2 className="text-4xl lg:text-5xl heading-font mb-6">Our Philosophy</h2>
+            <p className="text-xl text-[#6B7280] max-w-4xl mx-auto leading-relaxed mb-20">
+                We build enterprise-grade, reliable, and cutting-edge software solutions with precision and agility. We believe in engineering excellence over temporary fixes, delivering robust architecture that scales with your ambition.
+            </p>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                {[
+                    { name: "Alex Rivera", role: "CTO & Founder", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80" },
+                    { name: "Priya Patel", role: "Lead Cloud Architect", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" },
+                    { name: "James Chen", role: "Data Engineering Director", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80" },
+                    { name: "Sarah Jenkins", role: "VP of Engineering", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80" }
+                ].map((member, idx) => (
+                    <div key={idx} className={`group animate-fade-in delay-${idx * 100}`}>
+                        <div className="rounded-[2rem] overflow-hidden mb-4 bg-gray-100 h-64 luxury-card">
+                            <img
+                                src={member.img}
+                                alt={member.name}
+                                className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+                            />
+                        </div>
+                        <h4 className="font-bold text-[#1C1C1C] text-lg mb-1">{member.name}</h4>
+                        <p className="text-sm text-[#C8A153] font-bold uppercase tracking-wider">{member.role}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
+const ServicesPage = () => {
+    const [prompt, setPrompt] = useState("");
+    const [strategy, setStrategy] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const generateStrategy = () => {
+        if (!prompt) return;
+        setLoading(true);
+        // Simulate AI loading
+        setTimeout(() => {
+            setStrategy(`We are thrilled to transform your ${prompt.toLowerCase().replace('want to create', '')} into a digital powerhouse! Here is our high-impact, 3-point strategy:\n\n1. Sensory-First UI/UX: We will design a visually engaging, mobile-responsive storefront ensuring lightning-fast load times.\n2. AI-Driven Operations: We'll integrate smart automation to handle backend requests and customer support 24/7.\n3. Hyper-Local Marketing: Launch targeted campaigns to dominate searches and drive consistent traffic.\n\nLet's build your brand's digital future together!`);
+            setLoading(false);
+        }, 2000);
+    };
+
+    return (
+        <div className="pt-32 pb-20 animate-fade-in">
+            {/* Services Hero */}
+            <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-24">
+                <div className="bg-white rounded-[3rem] p-12 lg:p-24 text-center shadow-xl border border-gray-100 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#C8A153]/5 rounded-full blur-3xl"></div>
+                    <Badge text="Engineering Your Digital Advantage" />
+                    <h1 className="text-4xl lg:text-6xl heading-font uppercase mb-6 relative z-10">
+                        Let's Turn Your Vision<br />
+                        Into A <span className="text-[#C8A153]">Digital Masterpiece.</span>
+                    </h1>
+                    <p className="text-[#6B7280] text-lg max-w-2xl mx-auto mb-10 relative z-10">
+                        Join our roster of elite partners. From visual identity to complex enterprise architecture, we deliver high-performance digital results without compromise.
+                    </p>
+                    <div className="flex justify-center space-x-8 text-sm font-bold text-[#1C1C1C] mb-8 relative z-10">
+                        <span className="flex items-center"><Mail className="mr-2 text-[#C8A153]" size={18} /> hello@build2click.com</span>
+                        <span className="flex items-center"><Linkedin className="mr-2 text-[#C8A153]" size={18} /> build2click_agency</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Services Grid */}
+            <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-24">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {[
+                        { img: "https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&w=600&q=80", title: "Website Design & Dev", desc: "Architecting performance-first digital storefronts. We build lightning-fast, SEO-optimized web experiences." },
+                        { img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80", title: "Enterprise Software", desc: "Custom web apps and APIs. Specializing in scalable backend architectures like Java and Spring Boot." },
+                        { img: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80", title: "Brand Identity Design", desc: "Memorable logo systems and comprehensive brand guidelines positioning you at the top of your market tier." },
+                        { img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80", title: "Performance Marketing", desc: "Data-driven growth engines. Targeted funnels and precision campaigns to maximize ROAS." },
+                        { img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80", title: "App Development", desc: "Native and cross-platform mobile experiences prioritizing fluid interactions and user retention." },
+                        { img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=600&q=80", title: "Maintenance & Support", desc: "Reliable post-launch assistance ensuring your platform remains secure, updated, and continuously optimized." }
+                    ].map((service, idx) => (
+                        <div key={idx} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 luxury-card group">
+                            <div className="h-48 overflow-hidden relative">
+                                <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            </div>
+                            <div className="p-8">
+                                <h3 className="text-xl font-bold mb-3">{service.title}</h3>
+                                <p className="text-[#6B7280] text-sm mb-6">{service.desc}</p>
+                                <button className="text-[#C8A153] font-bold text-sm uppercase tracking-wider flex items-center group-hover:underline">
+                                    Explore <ArrowRight size={16} className="ml-1" />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* AI Strategy Lead Magnet */}
+            <div className="max-w-4xl mx-auto px-6 lg:px-8">
+                <div className="bg-white p-8 lg:p-12 rounded-[2rem] shadow-lg border border-[#C8A153]/20 relative overflow-hidden">
+                    <div className="flex items-center text-xl font-bold mb-2">
+                        <Sparkles className="text-[#C8A153] mr-2" />
+                        Free AI Digital Strategy
+                    </div>
+                    <p className="text-[#6B7280] mb-8">Describe your business goals below, and our AI strategist will instantly build a custom transformation plan.</p>
+
+                    <div className="flex flex-col md:flex-row gap-4 mb-6">
+                        <input
+                            type="text"
+                            placeholder="e.g., I want to create a website for a luxury bakery..."
+                            className="flex-1 bg-[#FAFAF7] border border-gray-200 rounded-xl px-6 py-4 focus:outline-none focus:border-[#C8A153] transition-colors"
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                        />
+                        <Button onClick={generateStrategy} disabled={loading} className="whitespace-nowrap">
+                            {loading ? <Loader2 className="animate-spin mr-2" /> : <Sparkles className="mr-2" size={18} />}
+                            Build Strategy
+                        </Button>
+                    </div>
+
+                    {strategy && (
+                        <div className="bg-[#FAFAF7] rounded-xl p-6 border border-gray-100 animate-fade-in">
+                            <h4 className="text-[#C8A153] font-bold mb-4">Your Transformation Plan:</h4>
+                            <p className="whitespace-pre-line text-[#1C1C1C] leading-relaxed">{strategy}</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+const ContactPage = () => (
+    <div className="pt-32 pb-20 animate-fade-in">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+
+            {/* Header */}
+            <div className="mb-12">
+                <h1 className="text-6xl lg:text-[5.5rem] heading-font uppercase leading-[0.9]">
+                    <span className="block text-[#1C1C1C]">Start The</span>
+                    <span className="block text-[#C8A153]">Dialogue.</span>
+                </h1>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+                {/* Left Side: Contact Cards & Hub */}
+                <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                        {/* Card 1 */}
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start space-x-4 luxury-card">
+                            <div className="text-[#C8A153] mt-1"><Mail size={20} strokeWidth={2.5} /></div>
+                            <div>
+                                <div className="text-[10px] font-bold text-[#C8A153] uppercase tracking-widest mb-1">Email</div>
+                                <div className="text-[#1C1C1C] font-bold text-sm">hello@build2click.com</div>
+                            </div>
+                        </div>
+
+                        {/* Card 2 */}
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start space-x-4 luxury-card">
+                            <div className="text-[#C8A153] mt-1"><Phone size={20} strokeWidth={2.5} /></div>
+                            <div>
+                                <div className="text-[10px] font-bold text-[#C8A153] uppercase tracking-widest mb-1">Call</div>
+                                <div className="text-[#1C1C1C] font-bold text-sm">+91 7980313975</div>
+                            </div>
+                        </div>
+
+                        {/* Card 3 */}
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start space-x-4 luxury-card">
+                            <div className="text-[#C8A153] mt-1"><MessageSquare size={20} strokeWidth={2.5} /></div>
+                            <div>
+                                <div className="text-[10px] font-bold text-[#C8A153] uppercase tracking-widest mb-1">WhatsApp</div>
+                                <div className="text-[#1C1C1C] font-bold text-sm">Instant Message</div>
+                            </div>
+                        </div>
+
+                        {/* Card 4 */}
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start space-x-4 luxury-card">
+                            <div className="text-[#C8A153] mt-1"><Clock size={20} strokeWidth={2.5} /></div>
+                            <div>
+                                <div className="text-[10px] font-bold text-[#C8A153] uppercase tracking-widest mb-1">Availability</div>
+                                <div className="text-[#1C1C1C] font-bold text-sm">24/7 Elite Support</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Hub Card */}
+                    <div className="bg-[#1C1C1C] rounded-3xl p-8 md:p-10 shadow-xl border-b-[12px] border-[#C8A153] luxury-card">
+                        <h3 className="text-white text-3xl heading-font uppercase mb-3">Visit Our Hub</h3>
+                        <p className="text-gray-400 text-sm mb-10">Headquartered in the Silicon Valley, operating globally.</p>
+                        <div className="flex items-center text-[#C8A153]">
+                            <MapPin size={16} className="mr-2" />
+                            <span className="text-[11px] font-bold uppercase tracking-widest">Global Digital Presence</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Side: Form */}
+                <div>
+                    <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-8 md:p-12 relative overflow-hidden">
+                        <h3 className="text-2xl font-black heading-font uppercase mb-8 text-[#1C1C1C]">Direct Briefing</h3>
+
+                        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <input
+                                    type="text"
+                                    placeholder="First Name"
+                                    className="w-full bg-[#FAFAF7] rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-[#C8A153]/50 text-sm placeholder-gray-400 transition-shadow"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Last Name"
+                                    className="w-full bg-[#FAFAF7] rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-[#C8A153]/50 text-sm placeholder-gray-400 transition-shadow"
+                                />
+                            </div>
+                            <input
+                                type="email"
+                                placeholder="Email Address"
+                                className="w-full bg-[#FAFAF7] rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-[#C8A153]/50 text-sm placeholder-gray-400 transition-shadow"
+                            />
+                            <textarea
+                                rows="6"
+                                placeholder="How can we help?"
+                                className="w-full bg-[#FAFAF7] rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-[#C8A153]/50 text-sm placeholder-gray-400 resize-none transition-shadow"
+                            ></textarea>
+
+                            <button className="w-full bg-[#C8A153] hover:bg-[#b08c46] text-white font-bold py-5 rounded-2xl flex justify-center items-center uppercase tracking-widest transition-all duration-300 mt-6 group shadow-lg shadow-[#C8A153]/20 hover:shadow-[#C8A153]/40">
+                                Send Message
+                                <Send size={18} className="ml-3 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+const DigitalCardPage = () => (
+    <div className="min-h-screen bg-[#FAFAF7] flex items-center justify-center py-12 px-4 animate-fade-in">
+        <div className="w-full max-w-sm bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 relative">
+            <div className="h-32 bg-[#1C1C1C] relative">
+                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-white rounded-2xl shadow-lg border-4 border-white flex items-center justify-center overflow-hidden">
+                    <div className="text-3xl font-bold heading-font flex items-center justify-center bg-[#C8A153] text-white w-full h-full">B2C</div>
+                </div>
+            </div>
+
+            <div className="pt-16 pb-8 px-8 text-center">
+                <h2 className="text-2xl font-bold heading-font text-[#1C1C1C] mb-1">Build2Click</h2>
+                <p className="text-[#C8A153] text-sm font-bold uppercase tracking-wider mb-4">We Build You Grow 🌱</p>
+                <p className="text-[#6B7280] text-sm mb-8">Web Development | Brand Identity | Software Solutions</p>
+
+                <div className="space-y-4 mb-8">
+                    {[
+                        { icon: <Phone size={20} />, title: "Call Us", subtitle: "+91 7980313975", link: "tel:+917980313975" },
+                        { icon: <MessageSquare size={20} />, title: "WhatsApp", subtitle: "Chat with us", link: "#" },
+                        { icon: <LayoutGrid size={20} />, title: "Website", subtitle: "www.build2click.in", link: "#" },
+                        { icon: <Mail size={20} />, title: "Email", subtitle: "build2click@gmail.com", link: "mailto:build2click@gmail.com" }
+                    ].map((item, idx) => (
+                        <a key={idx} href={item.link} className="flex items-center p-4 rounded-2xl bg-[#FAFAF7] hover:bg-gray-100 transition-colors border border-gray-100">
+                            <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#C8A153] mr-4">
+                                {item.icon}
+                            </div>
+                            <div className="text-left">
+                                <p className="text-[#1C1C1C] font-bold text-sm">{item.title}</p>
+                                <p className="text-[#6B7280] text-xs">{item.subtitle}</p>
+                            </div>
+                        </a>
+                    ))}
+                </div>
+
+                <Button className="w-full" icon={<Download size={18} />}>Save to Contacts</Button>
+            </div>
+        </div>
+    </div>
+);
+
+
+// --- Main App Layout ---
+export default function App() {
+    const [currentPage, setCurrentPage] = useState('home');
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Scroll to top on page change
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [currentPage]);
+
+    const navLinks = [
+        { id: 'home', label: 'Home' },
+        { id: 'services', label: 'Services' },
+        { id: 'about', label: 'About Us' },
+        { id: 'contact', label: 'Contact' },
+        { id: 'card', label: 'vCard' } // Hidden in main nav usually, but added here for testing
+    ];
+
+    const renderPage = () => {
+        switch (currentPage) {
+            case 'home': return <HomePage navigate={setCurrentPage} />;
+            case 'about': return <AboutPage />;
+            case 'services': return <ServicesPage />;
+            case 'contact': return <ContactPage />;
+            case 'card': return <DigitalCardPage />;
+            default: return <HomePage navigate={setCurrentPage} />;
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex flex-col">
+            <GlobalStyles />
+
+            {/* Navigation */}
+            {currentPage !== 'card' && (
+                <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
+                    <div className="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
+                        {/* Logo */}
+                        <div
+                            className="flex items-center cursor-pointer group"
+                            onClick={() => setCurrentPage('home')}
+                        >
+                            <div className="bg-[#C8A153] text-white p-2 rounded-lg mr-3 shadow-md group-hover:scale-105 transition-transform">
+                                <Zap size={20} fill="currentColor" />
+                            </div>
+                            <span className="font-bold text-xl tracking-tight heading-font">BUILD2CLICK</span>
+                        </div>
+
+                        {/* Desktop Links */}
+                        <div className="hidden md:flex items-center space-x-8">
+                            {navLinks.slice(0, 4).map(link => (
+                                <button
+                                    key={link.id}
+                                    onClick={() => setCurrentPage(link.id)}
+                                    className={`text-sm font-bold uppercase tracking-wider transition-colors ${currentPage === link.id ? 'text-[#C8A153]' : 'text-[#1C1C1C] hover:text-[#C8A153]'}`}
+                                >
+                                    {link.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* CTA */}
+                        <div className="hidden md:block">
+                            <Button onClick={() => setCurrentPage('contact')} variant="secondary" className="px-6 py-2.5 text-sm">Start Project</Button>
+                        </div>
+                    </div>
+                </nav>
+            )}
+
+            {/* Main Content Area */}
+            <main className="flex-grow">
+                {renderPage()}
+            </main>
+
+            {/* Footer */}
+            {currentPage !== 'card' && (
+                <footer className="bg-white border-t border-gray-100 py-6">
+                    <div className="max-w-7xl mx-auto px-6 lg:px-8 grid md:grid-cols-4 gap-6">
+                        <div className="md:col-span-2">
+                            <div className="flex items-center mb-3">
+                                <div className="bg-[#C8A153] text-white p-1.5 rounded-lg mr-3">
+                                    <Zap size={18} fill="currentColor" />
+                                </div>
+                                <span className="font-bold text-lg tracking-tight heading-font">BUILD2CLICK</span>
+                            </div>
+                            <p className="text-[#6B7280] max-w-md text-sm">
+                                Elite digital engineering for ambitious brands. We design, we develop, we convert.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 className="font-bold text-xs uppercase tracking-widest mb-3 text-[#1C1C1C]">Navigation</h4>
+                            <ul className="space-y-1.5">
+                                {navLinks.slice(0, 4).map(link => (
+                                    <li key={link.id}>
+                                        <button onClick={() => setCurrentPage(link.id)} className="text-[#6B7280] hover:text-[#C8A153] transition-colors text-sm">{link.label}</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="font-bold text-xs uppercase tracking-widest mb-3 text-[#1C1C1C]">Follow Us</h4>
+                            <div className="flex space-x-3">
+                                {[Instagram, Linkedin, Twitter].map((Icon, i) => (
+                                    <a key={i} href="#" className="w-8 h-8 rounded-full bg-[#FAFAF7] border border-gray-200 flex items-center justify-center text-[#6B7280] hover:bg-[#C8A153] hover:text-white hover:border-[#C8A153] transition-all">
+                                        <Icon size={14} />
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-6 pt-4 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center text-xs text-[#6B7280]">
+                        <p>© 2026 BUILD2CLICK ENGINEERING. ALL RIGHTS RESERVED.</p>
+                        <div className="flex space-x-6 mt-3 md:mt-0">
+                            <a href="#" className="hover:text-[#1C1C1C]">Privacy Policy</a>
+                            <a href="#" className="hover:text-[#1C1C1C]">Terms of Service</a>
+                        </div>
+                    </div>
+                </footer>
+            )}
+        </div>
+    );
+}

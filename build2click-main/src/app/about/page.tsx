@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layers, Users, MessageSquare, RefreshCw } from 'lucide-react';
-import { ScrollReveal } from '@/components/agency/ui/ScrollReveal';
-import { AnimatedCounter } from '@/components/agency/ui/AnimatedCounter';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 
 export default function About() {
     return (

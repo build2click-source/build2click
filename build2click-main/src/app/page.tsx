@@ -2,9 +2,9 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Code2, Smartphone, Palette, TrendingUp, CheckCircle2, ChevronRight } from 'lucide-react';
-import { Badge } from '@/components/agency/ui/Badge';
-import { Button } from '@/components/agency/ui/Button';
-import { ScrollReveal } from '@/components/agency/ui/ScrollReveal';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
 
 
 export default function Home() {
@@ -60,7 +60,7 @@ export default function Home() {
 
 
                         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in delay-300">
-                            <Button onClick={() => router.push('/services#ai-strategy')} icon={<ArrowRight size={18} />}>Start Project</Button>
+                            <Button onClick={() => router.push('/contact')} icon={<ArrowRight size={18} />}>Start Project</Button>
                             <Button variant="outline" onClick={() => router.push('/services')}>Our Services</Button>
                         </div>
                     </div>
@@ -162,7 +162,7 @@ export default function Home() {
                 <div className="text-center px-6 mb-12 flex flex-col items-center">
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl heading-font mb-4">Ready to Grow Your Business Online?</h2>
                     <p className="text-[#6B7280] mb-8 max-w-2xl mx-auto">Whether you're launching a new brand, redesigning your website, or looking for reliable maintenance services, Build2Click is your digital partner.</p>
-                    <Button onClick={() => router.push('/services#ai-strategy')} icon={<ChevronRight />}>Start Project</Button>
+                    <Button onClick={() => router.push('/contact')} icon={<ChevronRight />}>Start Project</Button>
 
                 </div>
             </ScrollReveal>

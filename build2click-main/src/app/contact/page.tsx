@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Mail, Phone, MessageSquare, Clock, MapPin, Send, AlertCircle } from 'lucide-react';
-import { ScrollReveal } from '@/components/agency/ui/ScrollReveal';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
 
 type FormFields = {
     name: string;
@@ -117,11 +117,11 @@ export default function Contact() {
                         </ScrollReveal>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                             <ScrollReveal direction="left" delay={100} className="h-full">
-                                <a href="mailto:build2click@gmail.com" className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start space-x-4 luxury-card group cursor-pointer h-full">
+                                <a href="mailto:hello@build2click.com" className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start space-x-4 luxury-card group cursor-pointer h-full">
                                     <div className="text-[#C8A153] mt-1 group-hover:scale-110 transition-transform"><Mail size={20} strokeWidth={2.5} /></div>
                                     <div>
                                         <div className="text-[10px] font-bold text-[#C8A153] uppercase tracking-widest mb-1">Email</div>
-                                        <div className="text-[#1C1C1C] font-bold text-sm group-hover:text-[#C8A153] transition-colors">build2click@gmail.com</div>
+                                        <div className="text-[#1C1C1C] font-bold text-sm group-hover:text-[#C8A153] transition-colors">hello@build2click.com</div>
                                     </div>
                                 </a>
                             </ScrollReveal>

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/agency/Navbar";
-import { Footer } from "@/components/agency/Footer";
-import { GlobalStyles } from "@/components/agency/GlobalStyles";
-import { FloatingWhatsApp } from "@/components/agency/ui/FloatingWhatsApp";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { GlobalStyles } from "@/components/GlobalStyles";
+import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 
 const inter = Inter({
   variable: "--font-inter",

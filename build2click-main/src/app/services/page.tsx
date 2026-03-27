@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { Mail, Sparkles, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { Badge } from '@/components/agency/ui/Badge';
-import { Button } from '@/components/agency/ui/Button';
-import { Linkedin } from '@/components/agency/ui/Icons';
-import { ScrollReveal } from '@/components/agency/ui/ScrollReveal';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Linkedin } from '@/components/ui/Icons';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import ReactMarkdown from 'react-markdown';
 
 const services = [
@@ -17,8 +17,8 @@ const services = [
     { img: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80", title: "App Excellence", desc: "Fluid mobile experiences for iOS and Android. High-performance native interactions that keep users engaged." },
     { img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80", title: "System Support", desc: "24/7 dedicated maintenance and optimization. Secure, reliable, and always evolving to meet your business needs." },
     { img: "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=800&q=80", title: "Logo Mastery", desc: "Crafting iconic visual symbols that define your brand at first glance. Timeless designs for modern digital presence." },
-    { img: "/catalogue.png", title: "Catalogue Design", desc: "High-impact product showcases designed for both digital-first browsing and premium high-key print quality." },
-    { img: "/business-cards.png", title: "Business Cards", desc: "Tactile networking tools that leave an indelible mark of professional superiority. Custom finishes and elite stocks." }
+    { img: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80", title: "Catalogue Design", desc: "High-impact product showcases designed for both digital-first browsing and premium high-key print quality." },
+    { img: "https://images.unsplash.com/photo-1596464716127-f2a82984df30?auto=format&fit=crop&w=800&q=80", title: "Business Cards", desc: "Tactile networking tools that leave an indelible mark of professional superiority. Custom finishes and elite stocks." }
 ];
 
 export default function Services() {
@@ -39,15 +39,6 @@ export default function Services() {
             setUsed(sessionStorage.getItem('strategy_used') === 'true');
         }
     }, []);
-
-    React.useEffect(() => {
-        if (mounted && typeof window !== 'undefined' && window.location.hash === '#ai-strategy') {
-            const el = document.getElementById('ai-strategy');
-            if (el) {
-                setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-            }
-        }
-    }, [mounted]);
 
 
     const toggleFlip = (idx: number) => {
@@ -161,7 +152,7 @@ export default function Services() {
             {/* AI Strategy Lead Magnet */}
             {mounted && (
                 <ScrollReveal direction="up" delay={200}>
-                    <div id="ai-strategy" className="max-w-4xl mx-auto px-5 lg:px-8">
+                    <div className="max-w-4xl mx-auto px-5 lg:px-8">
                         <div className="bg-white p-6 sm:p-10 rounded-[2rem] shadow-lg border border-[#C8A153]/20 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-48 h-48 bg-[#C8A153]/5 rounded-full blur-3xl pointer-events-none"></div>
                             <div className="flex items-center text-lg sm:text-xl font-bold mb-2 flex-wrap gap-2">
