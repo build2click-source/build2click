@@ -16,7 +16,7 @@ const ENNEAGRAM_TYPES: Record<number, { title: string; description: string }> = 
 };
 
 export default async function ResultsPage() {
-    const supabase = await createClient();
+    const supabase = await createClient('personality');
 
     // Ensure user is logged in
     const { data: { user } } = await supabase.auth.getUser();
