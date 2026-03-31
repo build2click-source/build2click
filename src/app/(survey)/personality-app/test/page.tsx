@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function TestPage() {
-    const supabase = await createClient();
+    const supabase = await createClient('personality');
 
     // Basic check: we don't strictly require login to *see* the test, 
     // but to submit we do. For now, let's just make sure they are logged in so
@@ -69,6 +69,7 @@ export default async function TestPage() {
         .order("id", { ascending: true });
 
     if (error || !questions) {
+        console.error("Questions loading error:", error);
         return (
             <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
                 <h2 className="text-2xl font-bold text-red-500">Failed to load questions</h2>

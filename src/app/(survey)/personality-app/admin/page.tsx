@@ -4,7 +4,7 @@ import { Users, Shield, Calendar, Hash, Clock } from "lucide-react";
 import AdminRow from "./AdminRow";
 
 export default async function AdminDashboard() {
-    const supabase = await createClient();
+    const supabase = await createClient('personality');
 
     // 1. Verify Authentication
     const { data: { user } } = await supabase.auth.getUser();

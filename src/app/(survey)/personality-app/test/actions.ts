@@ -9,7 +9,7 @@ type Answer = {
 };
 
 export async function submitAssessment(answers: Answer[], durationSeconds: number) {
-    const supabase = await createClient();
+    const supabase = await createClient('personality');
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
