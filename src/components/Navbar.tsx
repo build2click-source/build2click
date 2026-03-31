@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import MobileNav from "./MobileNav";
 
 export default async function Navbar() {
-    const supabase = await createClient();
+    const supabase = await createClient('personality');
 
     // 1. Check if user is logged in
     const { data: { user } } = await supabase.auth.getUser();
