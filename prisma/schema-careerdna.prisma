@@ -1,0 +1,157 @@
+generator careerdnaClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/careerdna-client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("CAREERDNA_DATABASE_URL")
+  directUrl = env("CAREERDNA_DIRECT_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String?
+  role      Role      @default(STUDENT)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  attempts  Attempt[]
+  accounts  Account[]
+  sessions  Session[]
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Assessment {
+  id               String             @id @default(uuid())
+  title            String
+  description      String?
+  timeLimitMinutes Int
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  isArchived       Boolean            @default(false)
+  modules          AssessmentModule[]
+  attempts         Attempt[]
+}
+
+model AssessmentModule {
+  id           String     @id @default(uuid())
+  assessmentId String
+  title        String
+  type         String
+  order        Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  isArchived   Boolean    @default(false)
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  questions    Question[]
+}
+
+model Question {
+  id              String           @id @default(uuid())
+  moduleId        String
+  text            String
+  traitDimension  String?
+  scoringPolarity String?
+  options         String
+  correctAnswer   String?
+  marks           Float            @default(1.0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  isArchived      Boolean          @default(false)
+  module          AssessmentModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  responses       Response[]
+}
+
+model OccupationalProfile {
+  id            String         @id @default(uuid())
+  title         String         @unique
+  description   String
+  targetVector  String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  fitmentScores FitmentScore[]
+}
+
+model Attempt {
+  id            String         @id @default(uuid())
+  userId        String
+  assessmentId  String
+  startTime     DateTime       @default(now())
+  endTime       DateTime?
+  sessionExpiry DateTime
+  isCompleted   Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  assessment    Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fitmentScores FitmentScore[]
+  responses     Response[]
+}
+
+model Response {
+  id         String   @id @default(uuid())
+  attemptId  String
+  questionId String
+  answerText String
+  scoreValue Float?
+  isCorrect  Boolean?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  attempt    Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+}
+
+model FitmentScore {
+  id                    String              @id @default(uuid())
+  attemptId             String
+  occupationalProfileId String
+  euclideanDistance     Float
+  fitmentPercentage     Float
+  matchedTags           String
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  attempt               Attempt             @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  occupationalProfile   OccupationalProfile @relation(fields: [occupationalProfileId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
