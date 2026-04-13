@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma generate --schema=prisma/schema-careerdna.prisma && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && prisma generate --schema=prisma/schema-careerdna.prisma"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
