@@ -173,10 +173,12 @@ export default function CareerDNAAssessmentEnginePage() {
        } catch(e) {}
     }
 
-    setSaving(true);
+    if (currentIdx >= totalQuestions - 1) {
+      setSaving(true);
+    }
+    
     setTimeout(async () => {
       if (currentIdx < totalQuestions - 1) {
-        setSaving(false);
         setSelectedScore(null);
         setCurrentIdx((i) => i + 1);
       } else {

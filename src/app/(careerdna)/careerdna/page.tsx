@@ -106,7 +106,7 @@ export default function CareerDNAHome() {
           </div>
 
           <p className="text-slate-400 text-sm mt-2">
-            Based on validated frameworks: <span className="font-semibold text-slate-500">Big 5 · RIASEC · O*NET · VARK</span>
+            Based on validated frameworks: <span className="font-semibold text-slate-500">Big 5 · RIASEC · VARK</span>
           </p>
         </div>
       </section>
@@ -162,7 +162,7 @@ export default function CareerDNAHome() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
               { step: "01", title: "Complete 5 Science-Backed Modules", desc: "Take at your own pace. Save and resume within a 5-day window." },
-              { step: "02", title: "AI Scores Your Psychometric Profile", desc: "Our Euclidean-distance engine maps you against 900+ O*NET careers." },
+              { step: "02", title: "AI Scores Your Psychometric Profile", desc: "Our Euclidean-distance engine maps you against 900+ top careers." },
               { step: "03", title: "Get Your Career Fitment Report", desc: "Receive a ranked list with radar charts showing skill gaps and strengths." },
             ].map((item) => (
               <div key={item.step} className="flex flex-col items-center gap-4">

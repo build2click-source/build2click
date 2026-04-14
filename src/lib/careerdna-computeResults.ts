@@ -47,18 +47,50 @@ export async function finalizeAttempt(attemptId: string) {
       "Extraversion", "Agreeableness", "Conscientiousness", "Neuroticism", "Openness",
       "Realistic", "Investigative", "Artistic", "Social", "Enterprising", "Conventional",
       "Numerical Reasoning", "Verbal Reasoning", "Logical Reasoning",
+      // Values (10)
+      "Stability", "Material Reward", "Learning", "Creativity", "Altruism", 
+      "Influence", "Recognition", "Autonomy", "Teamwork", "Intellectual Challenge",
+      // SJT (17)
+      "Leadership", "Conflict Resolution", "Team Dynamics", "Integrity", "Professionalism", 
+      "Accountability", "Client Management", "Decision Making", "Resilience", "Time Management", 
+      "Collaboration", "Learning Agility", "Proactivity", "Prioritization", "Stakeholder Management", 
+      "Communication", "Self-Awareness",
+      // VARK (1)
+      "VARK"
     ];
+
+    const getWeight = (key: string) => {
+      // High importance on cognitive aptitude
+      if (["Numerical Reasoning", "Verbal Reasoning", "Logical Reasoning"].includes(key)) return 1.5;
+      // Standard importance on Big 5 and RIASEC
+      if (vectorKeys.indexOf(key) < 11) return 1.0; 
+      // Secondary importance on Values, SJT, and VARK
+      return 0.8; 
+    };
+
     const userVector = vectorKeys.map((k) => (profileVector[k] ?? 50) / 20);
 
     const seenTitles = new Set<string>();
     const careerMatches = occupationalProfiles
       .map((profile) => {
         const target = JSON.parse(profile.targetVector) as number[];
-        const distance = Math.sqrt(
-          userVector.reduce((acc, v, i) => acc + Math.pow(v - (target[i] ?? 2.5), 2), 0)
-        );
-        const maxDist = Math.sqrt(vectorKeys.length * 25);
+        
+        let sumWeightedSquaredDiff = 0;
+        let maxPossibleSum = 0;
+
+        userVector.forEach((userVal, i) => {
+          const targetVal = target[i] ?? 2.5; // Fallback to neutral for 14-dim legacy profiles
+          const weight = getWeight(vectorKeys[i]);
+          
+          sumWeightedSquaredDiff += weight * Math.pow(userVal - targetVal, 2);
+          maxPossibleSum += weight * Math.pow(4, 2); // Max possible difference is 4 (e.g. 5 vs 1)
+        });
+
+        const distance = Math.sqrt(sumWeightedSquaredDiff);
+        const maxDist = Math.sqrt(maxPossibleSum);
+        
         const fitmentPct = Math.round((1 - distance / maxDist) * 100);
+        
         return {
           id: profile.id,
           title: profile.title,

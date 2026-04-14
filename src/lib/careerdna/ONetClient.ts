@@ -48,6 +48,10 @@ export class ONetClient {
     return this.fetchONet(`/online/occupations/${socCode}/details/abilities`);
   }
 
+  async getWorkValues(socCode: string) {
+    return this.fetchONet(`/online/occupations/${socCode}/details/work_values`);
+  }
+
   async getOccupationDetails(socCode: string) {
     return this.fetchONet(`/online/occupations/${socCode}`);
   }

@@ -19,15 +19,16 @@ export async function GET(request: NextRequest) {
     }
 
     // 1. Fetch all detailed components from O*NET
-    const [details, interests, workStyles, abilities] = await Promise.all([
+    const [details, interests, workStyles, abilities, workValues] = await Promise.all([
       onetClient.getOccupationDetails(socCode),
       onetClient.getInterests(socCode),
       onetClient.getWorkStyles(socCode),
-      onetClient.getAbilities(socCode)
+      onetClient.getAbilities(socCode),
+      onetClient.getWorkValues(socCode)
     ]);
 
     // 2. Map to our internal vector
-    const scores = ONetMapper.mapToVector(interests, workStyles, abilities);
+    const scores = ONetMapper.mapToVector(interests, workStyles, abilities, workValues);
     const targetVector = ONetMapper.toTargetVector(scores);
 
     return NextResponse.json({
