@@ -18,13 +18,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "SOC Code is required" }, { status: 400 });
     }
 
-    // 1. Fetch all detailed components from O*NET
+    // 1. Fetch all detailed components from O*NET gracefully
     const [details, interests, workStyles, abilities, workValues] = await Promise.all([
       onetClient.getOccupationDetails(socCode),
-      onetClient.getInterests(socCode),
-      onetClient.getWorkStyles(socCode),
-      onetClient.getAbilities(socCode),
-      onetClient.getWorkValues(socCode)
+      onetClient.getInterests(socCode).catch(() => ({})),
+      onetClient.getWorkStyles(socCode).catch(() => ({})),
+      onetClient.getAbilities(socCode).catch(() => ({})),
+      onetClient.getWorkValues(socCode).catch(() => ({}))
     ]);
 
     // 2. Map to our internal vector

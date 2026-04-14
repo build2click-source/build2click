@@ -75,7 +75,7 @@ export default function CareerDNAHome() {
           <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-purple-400/10 blur-3xl" />
         </div>
 
-        <div className="max-w-[1200px] mx-auto px-6 pt-20 pb-28 flex flex-col items-center text-center gap-8">
+        <div className="max-w-[1200px] mx-auto px-6 pt-16 pb-20 flex flex-col items-center text-center gap-6">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#fb6a51]/10 text-[#fb6a51] text-sm font-semibold border border-[#fb6a51]/20">
             🚀 Psychometric Assessment Platform
           </span>
@@ -104,10 +104,6 @@ export default function CareerDNAHome() {
               </Link>
             )}
           </div>
-
-          <p className="text-slate-400 text-sm mt-2">
-            Based on validated frameworks: <span className="font-semibold text-slate-500">Big 5 · RIASEC · VARK</span>
-          </p>
         </div>
       </section>
 
@@ -127,8 +123,8 @@ export default function CareerDNAHome() {
       </section>
 
       {/* ─── FEATURES ─── */}
-      <section className="max-w-[1200px] mx-auto px-6 py-28">
-        <div className="text-center mb-16">
+      <section className="max-w-[1200px] mx-auto px-6 py-20">
+        <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
             The Assessment Reimagined
           </h2>
@@ -154,10 +150,10 @@ export default function CareerDNAHome() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="bg-slate-900 text-white py-28">
+      <section className="bg-slate-900 text-white py-20">
         <div className="max-w-[1200px] mx-auto px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">How It Works</h2>
-          <p className="text-slate-400 text-lg mb-16">Three steps from uncertainty to a clear career direction.</p>
+          <p className="text-slate-400 text-lg mb-12">Three steps from uncertainty to a clear career direction.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
@@ -178,7 +174,7 @@ export default function CareerDNAHome() {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="max-w-[1200px] mx-auto px-6 py-28">
+      <section className="max-w-[1200px] mx-auto px-6 py-20">
         <div className="bg-[#fb6a51] rounded-3xl p-8 md:p-16 text-center text-white relative overflow-hidden shadow-2xl shadow-[#fb6a51]/30 mx-4 md:mx-0">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 relative z-10">

@@ -82,7 +82,7 @@ export default function CareerDNAAssessmentModuleMapPage() {
   useEffect(() => {
     if (!loading && assessment) {
       setShowWelcome(true);
-      const timer = setTimeout(() => setShowWelcome(false), 5000);
+      const timer = setTimeout(() => setShowWelcome(false), 2000);
       return () => clearTimeout(timer);
     }
   }, [loading, assessment]);
@@ -114,7 +114,10 @@ export default function CareerDNAAssessmentModuleMapPage() {
     <div className="text-[#2D3142] min-h-screen flex flex-col items-center bg-[#F4F7F6] font-sans pb-20">
       {/* ─── Welcome Popup Overlay ─── */}
       {showWelcome && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-white/20 backdrop-blur-sm transition-opacity duration-300">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-white/20 backdrop-blur-sm transition-opacity duration-300 cursor-pointer"
+          onClick={() => setShowWelcome(false)}
+        >
           <div 
             className="w-full max-w-sm bg-gradient-to-br from-[#fb6a51] to-[#f97316] text-white p-8 rounded-[2.5rem] shadow-2xl flex flex-col items-center text-center gap-4"
             style={{ animation: "scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)" }}
@@ -137,7 +140,7 @@ export default function CareerDNAAssessmentModuleMapPage() {
         {/* ─── Welcome Header ─── */}
         <section className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white px-8 py-6 rounded-3xl shadow-sm border border-slate-100">
           <div className="flex flex-col gap-2 flex-1 text-center md:text-left">
-            <div className="flex items-center gap-4 justify-center md:justify-start">
+            <div className="flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start w-full">
               <h1 className="text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-[#2D3142]">
                 {assessment.title}
               </h1>
@@ -160,7 +163,7 @@ export default function CareerDNAAssessmentModuleMapPage() {
                 </button>
               )}
             </div>
-            <p className="text-sm font-medium text-[#9095A7] line-clamp-2 leading-relaxed">{assessment.description || "Complete the modules below to finish this assessment."}</p>
+            <p className="text-sm font-medium text-[#9095A7] line-clamp-2 leading-relaxed">{assessment.description?.replace(/A \d+-question /, "A ") || "Complete the modules below to finish this assessment."}</p>
           </div>
 
           <div className="relative flex items-center justify-center size-24 shrink-0">

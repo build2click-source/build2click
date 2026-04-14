@@ -38,7 +38,13 @@ export default function CareerDNAONetImportPage() {
   const dimensionKeys = [
     "Extraversion", "Agreeableness", "Conscientiousness", "Neuroticism", "Openness",
     "Realistic", "Investigative", "Artistic", "Social", "Enterprising", "Conventional",
-    "Numerical Reasoning", "Verbal Reasoning", "Logical Reasoning"
+    "Numerical Reasoning", "Verbal Reasoning", "Logical Reasoning",
+    "Stability", "Material Reward", "Learning", "Creativity", "Altruism",
+    "Influence", "Recognition", "Autonomy", "Teamwork", "Intellectual Challenge",
+    "Leadership", "Conflict Resolution", "Team Dynamics", "Integrity", "Professionalism",
+    "Accountability", "Client Management", "Decision Making", "Resilience", "Time Management",
+    "Collaboration", "Learning Agility", "Proactivity", "Prioritization", "Stakeholder Management",
+    "Communication", "Self Awareness", "VARK"
   ];
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -63,7 +69,12 @@ export default function CareerDNAONetImportPage() {
     try {
       const res = await fetch(`/api/careerdna/admin/onet/details?code=${code}`);
       const data = await res.json();
-      setPreview(data);
+      if (data.error) {
+        alert(data.error);
+        setPreview(null);
+      } else {
+        setPreview(data);
+      }
     } catch (err) {
       alert("Failed to fetch details");
     } finally {
@@ -229,8 +240,8 @@ export default function CareerDNAONetImportPage() {
                     </svg>
                   </div>
                   <p className="text-xs leading-relaxed text-indigo-900/60">
-                    <strong>Mapper Logic Applied:</strong> We have synthesized Interests, Work Styles, and Basic Abilities to form this 14-point vector. 
-                    Cognitive scores are scaled 0–1, while Personality and Social dimensions are scaled 0–5. Use the sliders to manually refine the "Ideal Profile" before saving.
+                    <strong>Mapper Logic Applied:</strong> We have synthesized Interests, Work Styles, Values, and Basic Abilities to form this comprehensive 42-point vector. 
+                    Cognitive scores are scaled 0–1, while Personality, Social, and Value dimensions are scaled 0–5. Use the sliders to manually refine the "Ideal Profile" before saving.
                   </p>
                 </div>
               </div>

@@ -10,6 +10,10 @@ export default function CareerDNANavbar() {
   const pathname = usePathname();
   const [targetAsmt, setTargetAsmt] = useState<{ id: string; status: string; attemptId: string | null } | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(false);
+
+  const rawName = session?.user?.email?.split("@")[0] || "there";
+  const userName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
   // Hide navbar on login/register or assessment pages (Focus Mode)
   const isHidden = pathname === "/careerdna/login" || pathname === "/careerdna/register" || pathname?.startsWith("/careerdna/assessment/");
@@ -73,13 +77,18 @@ export default function CareerDNANavbar() {
                   <span className="text-slate-200">|</span>
                 </>
               )}
-              <div className="flex items-center gap-1.5 px-1 py-1 rounded-lg group/user cursor-default">
-                <svg className="size-4 text-slate-400 group-hover/user:text-[#fb6a51] transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div 
+                className="relative flex items-center gap-1.5 px-2 py-1 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors"
+                onClick={() => setShowGreeting(!showGreeting)}
+              >
+                <svg className={`size-5 transition-colors ${showGreeting ? "text-[#fb6a51]" : "text-slate-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span className="text-slate-500 whitespace-nowrap group-hover/user:text-[#fb6a51] transition-all duration-300">
-                  Hi, {session.user.email?.split("@")[0]}
-                </span>
+                {showGreeting && (
+                  <span className="absolute top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-md whitespace-nowrap shadow-lg animate-in fade-in slide-in-from-top-1">
+                    Hi, {userName}
+                  </span>
+                )}
               </div>
               <button
                 onClick={() => signOut({ callbackUrl: "/careerdna" })}
@@ -127,7 +136,7 @@ export default function CareerDNANavbar() {
                 <svg className="size-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span className="text-slate-700 font-bold tracking-tight">Hi, {session.user.email?.split("@")[0]}</span>
+                <span className="text-slate-700 font-bold tracking-tight">Hi, {userName}</span>
               </div>
               <Link
                 href={assessmentLink}

@@ -57,7 +57,8 @@ export default function CareerDNADashboard() {
     );
   }
 
-  const userName = session?.user?.email?.split("@")[0] ?? "there";
+  const rawName = session?.user?.email?.split("@")[0] ?? "there";
+  const userName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
   return (
     <div className="text-[#2D3142] min-h-screen flex flex-col items-center bg-[#F4F7F6] font-sans pb-20">
@@ -76,10 +77,10 @@ export default function CareerDNADashboard() {
            </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-wrap justify-center gap-6 w-full">
           {assessments.map(asmt => {
             return (
-              <div key={asmt.id} className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex flex-col items-center gap-6 hover:-translate-y-1 transition-transform">
+              <div key={asmt.id} className="w-full md:max-w-[calc(50%-12px)] bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex flex-col items-center gap-6 hover:-translate-y-1 transition-transform">
                 
                 <div className="flex flex-col gap-2 text-center w-full items-center">
                   <h2 className="text-2xl md:text-3xl font-black text-[#2D3142]">{asmt.title}</h2>
@@ -94,9 +95,6 @@ export default function CareerDNADashboard() {
                       asmt.status === 'IN_PROGRESS' ? 'bg-[#fb6a51]/15 text-[#fb6a51]' : 'bg-slate-100 text-slate-500'
                     }`}>
                       {asmt.status.replace("_", " ")}
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#fb6a51] bg-[#fb6a51]/5 border border-[#fb6a51]/20 px-3 py-1.5 rounded-full">
-                      {asmt.attemptsRemaining} Attempts Left
                     </span>
                   </div>
                 </div>
