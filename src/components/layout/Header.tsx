@@ -83,7 +83,7 @@ export default function Header() {
 
       {/* Mobile Menu Dropdown */}
       <div
-        className={`absolute top-[calc(100%+1rem)] left-4 right-4 bg-white/95 backdrop-blur-2xl border border-gold/20 rounded-[2rem] p-6 shadow-2xl transition-all duration-500 origin-top md:hidden ${mobileMenuOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
+        className={`absolute top-[calc(100%+1rem)] left-4 right-4 bg-white/95 backdrop-blur-2xl border border-gold/20 rounded-[2rem] p-6 shadow-2xl transition-all duration-500 origin-top md:hidden pointer-events-auto ${mobileMenuOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
           }`}
       >
         <div className="flex flex-col space-y-3">
