@@ -1,129 +1,259 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-cream: #FDFCF6;
-  --color-gold-light: #FCE79D;
-  --color-gold: #D4AF37;
-  --color-gold-dark: #AA7C11;
-  --color-brown: #3E2723;
-  --font-serif: var(--font-playfair);
-  --font-sans: var(--font-poppins);
+  --color-background: #FCFBF8;
+  --color-foreground: #1A1A1A;
+  --color-gold: #C5A059;
+  --color-gold-light: #E6D3A5;
+  --color-gold-dark: #8D6220;
+  --color-gold-accent: #CBA461;
+  --color-ivory: #FCFBF8;
+  --color-charcoal: #1A1A1A;
+  --color-muted: #666666;
+  --font-sans: var(--font-inter);
+  --font-headline: var(--font-montserrat);
 }
 
+/* ── Selection ── */
+::selection {
+  background: rgba(197, 160, 89, 0.3);
+}
+
+/* ── Body ── */
 body {
-    background-color: #EFEBE1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
+  background: var(--color-ivory);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* The Card Container */
-.e-card {
-    background-color: #FDFCF6;
-    width: 100%;
-    max-width: 420px;
-    min-height: 100vh;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border-left: 1px solid #EAE3C8;
-    border-right: 1px solid #EAE3C8;
+/* ── Premium headline font class ── */
+.premium-headline {
+  font-family: var(--font-headline), system-ui, sans-serif;
 }
 
-@media (min-width: 420px) {
-    .e-card {
-        min-height: 850px;
-        border-radius: 20px;
-        margin: 20px 0;
-        border: 2px solid rgba(212, 175, 55, 0.3);
-    }
+/* ── Gold shine hover effect ── */
+.shine-hover {
+  background-size: 200% auto;
+  background-image: linear-gradient(to right,
+      #C5A059 0%,
+      #8D6220 20%,
+      #FCFBF8 50%,
+      #8D6220 80%,
+      #C5A059 100%);
+  transition: all 0.5s ease-out;
 }
 
-/* Gold Gradient Text */
-.gold-text {
-    background: linear-gradient(to right, #AA7C11 0%, #D4AF37 25%, #FCE79D 50%, #D4AF37 75%, #AA7C11 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    background-size: 200% auto;
-    animation: shine 5s linear infinite;
-}
-
-/* Gold Gradient Backgrounds */
-.gold-bg {
-    background: linear-gradient(135deg, #AA7C11 0%, #D4AF37 25%, #FCE79D 50%, #D4AF37 75%, #AA7C11 100%);
-    background-size: 200% auto;
-    animation: shine 5s linear infinite;
+.group:hover .shine-hover {
+  animation: shine 2s linear infinite;
+  filter: drop-shadow(0 10px 20px rgba(197, 160, 89, 0.3));
 }
 
 @keyframes shine {
-    to {
-        background-position: 200% center;
-    }
+  to {
+    background-position: 200% center;
+  }
 }
 
-/* Gold Dust Effect simulating the physical card */
-.gold-dust {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(253, 252, 246, 0) 70%);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-    filter: blur(10px);
-}
-
-.dust-1 { top: 20%; left: -10%; }
-.dust-2 { bottom: 30%; right: -20%; }
-
-/* Interactive Buttons */
-.contact-btn {
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    z-index: 10;
-}
-
-.contact-btn::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%);
-    z-index: -1;
+/* ── Page transition animations ── */
+@keyframes fadeIn {
+  from {
     opacity: 0;
-    transition: opacity 0.3s ease;
-}
+  }
 
-.contact-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(212, 175, 55, 0.2);
-    border-color: #D4AF37;
-}
-
-.contact-btn:hover::before {
+  to {
     opacity: 1;
+  }
 }
 
-.contact-btn:hover i {
-    transform: scale(1.1);
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.action-icon {
-    transition: transform 0.3s ease;
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Floating Save Button */
-.save-btn-container {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    max-width: 420px;
-    padding: 20px;
-    background: linear-gradient(to top, #FDFCF6 80%, rgba(253,252,246,0) 100%);
-    z-index: 50;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideInFromBottom 1s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideInFromTop 0.5s ease-out forwards;
+}
+
+/* ── Pulse animation for service cards ── */
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ── Spin animation for loading ── */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Logo zoom-in-out on page load ── */
+@keyframes logoZoom {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+
+  55% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+
+  75% {
+    transform: scale(0.95);
+  }
+
+  90% {
+    transform: scale(1.04);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-logo-zoom {
+  animation: logoZoom 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── Page transition loader ── */
+@keyframes loaderFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes loaderFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes logoPopIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes logoPopOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+@utility animate-float-rise {
+  animation: float-rise 14s linear infinite;
+}
+
+@keyframes float-rise {
+  0% { 
+    transform: translateY(20px) translateX(0) rotate(0deg); 
+    opacity: 0;
+  }
+  5% { opacity: 0.45; }
+  85% { opacity: 0.45; }
+  100% { 
+    transform: translateY(-95vh) translateX(20px) rotate(360deg); 
+    opacity: 0;
+  }
+}
+
+@keyframes float3D {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+.animate-float-3d {
+  animation: float3D 10s ease-in-out infinite;
 }

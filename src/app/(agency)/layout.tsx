@@ -1,24 +1,28 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
+import SiteShell from "@/components/layout/SiteShell";
 import "./globals.css";
-import { Navbar } from "@/components/agency/Navbar";
-import { Footer } from "@/components/agency/Footer";
-import { GlobalStyles } from "@/components/agency/GlobalStyles";
-import { FloatingWhatsApp } from "@/components/agency/ui/FloatingWhatsApp";
 
 const inter = Inter({
-  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
 const montserrat = Montserrat({
-  variable: "--font-montserrat",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["900"],
+  variable: "--font-montserrat",
 });
 
 export const metadata: Metadata = {
-  title: "Build2Click Engine",
-  description: "Elite digital engineering for ambitious brands.",
+  title: {
+    default: "Build2Click | Building To Your Final Click",
+    template: "%s | Build2Click",
+  },
+  description:
+    "Elite digital engineering for ambitious brands. We design, develop, and convert. Partner with us to build the future of your digital presence.",
 };
 
 export default function RootLayout({
@@ -29,16 +33,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${montserrat.variable} h-full antialiased`}
+      className={`${inter.variable} ${montserrat.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <GlobalStyles />
-        <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
-        <FloatingWhatsApp />
+      <body className="min-h-screen bg-ivory text-charcoal font-sans flex flex-col">
+        {/* Ambient gold glow */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[600px] bg-gradient-to-b from-gold/10 via-gold-dark/5 to-transparent blur-[120px] pointer-events-none rounded-full z-0" />
+
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   );

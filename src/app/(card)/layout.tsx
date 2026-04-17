@@ -1,39 +1,39 @@
-import type { Metadata } from 'next';
-import { Poppins, Playfair_Display } from 'next/font/google';
-import './globals.css';
+import type { Metadata } from "next";
+import { Inter, Montserrat } from "next/font/google";
+import PageLoader from "@/components/ui/PageLoader";
+import "./globals.css";
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-poppins',
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  style: ['normal', 'italic'],
-  weight: ['400', '600', '700'],
-  variable: '--font-playfair',
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["900"],
+  variable: "--font-montserrat",
 });
 
 export const metadata: Metadata = {
-    title: 'Build2Click | Digital Business Card',
-    description: 'Web Development | Brand Identity | Software Solutions',
+  title: "Build2Click | Digital Business Card",
+  description: "Web Development | Brand Identity | Software Solutions",
 };
 
 export default function CardLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    return (
-        <html lang="en" className={`${poppins.variable} ${playfair.variable} font-sans`}>
-            <head>
-                {/* FontAwesome for Icons designed in the base template */}
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-            </head>
-            <body className="antialiased m-0 p-0 text-gray-900 bg-[#EFEBE1]">
-                {children}
-            </body>
-        </html>
-    );
+  return (
+    <html lang="en" className={`${inter.variable} ${montserrat.variable} antialiased`}>
+      <body className="min-h-screen bg-ivory text-charcoal font-sans flex flex-col">
+        {/* Ambient gold glow */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[600px] bg-gradient-to-b from-gold/10 via-gold-dark/5 to-transparent blur-[120px] pointer-events-none rounded-full z-0" />
+        <PageLoader />
+        {children}
+      </body>
+    </html>
+  );
 }

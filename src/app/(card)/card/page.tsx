@@ -1,162 +1,226 @@
 'use client';
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import { useCallback, useState, useEffect } from 'react';
+import { Phone, Mail, Globe, Download, Share2, X, Copy, Check, Home, Heart, Star, Gift, User, Filter, ShoppingCart, Award, Truck, Headphones, CreditCard, Percent, MapPin } from 'lucide-react';
 
-export default function CardPage() {
-    const [saved, setSaved] = useState(false);
+const CONTACTS = [
+  { label: 'CALL', icon: <Phone size={20} strokeWidth={1.5} />, action: 'tel:+917980313975' },
+  { label: 'EMAIL', icon: <Mail size={20} strokeWidth={1.5} />, action: 'mailto:build2click@gmail.com' },
+  { label: 'WEB', icon: <Globe size={20} strokeWidth={1.5} />, action: 'https://www.build2click.in', external: true },
+];
 
-    const downloadVCard = () => {
-        const vcard = `BEGIN:VCARD
+const VCARD = `BEGIN:VCARD
 VERSION:3.0
-N:;Build2Click;;;
 FN:Build2Click
 ORG:Build2Click
-TITLE:Web Development | Brand Identity | Software Solutions
-TEL;TYPE=WORK,VOICE:+917980313975
-TEL;TYPE=CELL,VOICE:+917980313975
-EMAIL;TYPE=WORK:build2click@gmail.com
+TITLE:Digital Solution
+TEL;TYPE=CELL:+917980313975
+EMAIL:build2click@gmail.com
 URL:https://www.build2click.in
-NOTE:We Build You Grow 🌱
+NOTE:Web Development | Brand Identity | Software Solutions
 END:VCARD`;
 
-        const blob = new Blob([vcard], { type: 'text/vcard' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        
-        a.setAttribute('href', url);
-        a.setAttribute('download', 'Build2Click.vcf');
-        document.body.appendChild(a);
-        
-        a.click();
-        
-        // Clean up
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+const FLOATING_ICONS = [
+  { left: '10%', size: 28, delay: '0s', duration: '12s', Icon: Home },
+  { left: '25%', size: 24, delay: '4s', duration: '15s', Icon: Heart },
+  { left: '45%', size: 30, delay: '2s', duration: '10s', Icon: Star },
+  { left: '60%', size: 28, delay: '6s', duration: '18s', Icon: Gift },
+  { left: '85%', size: 32, delay: '1s', duration: '14s', Icon: User },
+  { left: '15%', size: 22, delay: '8s', duration: '20s', Icon: Filter },
+  { left: '75%', size: 34, delay: '3s', duration: '11s', Icon: ShoppingCart },
+  { left: '90%', size: 20, delay: '5s', duration: '13s', Icon: Award },
+  { left: '35%', size: 30, delay: '7s', duration: '16s', Icon: Truck },
+  { left: '55%', size: 28, delay: '9s', duration: '19s', Icon: Headphones },
+  { left: '5%', size: 24, delay: '2.5s', duration: '17s', Icon: CreditCard },
+  { left: '68%', size: 22, delay: '4.5s', duration: '14s', Icon: Percent },
+  { left: '40%', size: 28, delay: '1.5s', duration: '12s', Icon: MapPin },
+];
 
-        // Visual feedback
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-    };
+export default function CardPage() {
+  const [mounted, setMounted] = useState(false);
+  const [isShareModalOpen, setShareModalOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const cardUrl = 'https://www.build2click.in/card';
 
-    return (
-        <div className="e-card mx-auto">
-            {/* Inner Gold Border Frame */}
-            <div className="absolute inset-3 border-[1px] border-gold/40 rounded-lg pointer-events-none z-10"></div>
-            <div className="absolute inset-[15px] border-[0.5px] border-gold/20 rounded-lg pointer-events-none z-10"></div>
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-            {/* Decorative Gold Dust Background */}
-            <div className="gold-dust dust-1"></div>
-            <div className="gold-dust dust-2"></div>
+  const handleSave = useCallback(() => {
+    const blob = new Blob([VCARD], { type: 'text/vcard' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Build2Click.vcf';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
 
-            <div className="relative z-20 px-8 py-10 h-full flex flex-col">
-                
-                {/* Logo Section */}
-                <div className="flex flex-col items-center justify-center mt-2 mb-4 w-full relative z-20">
-                    <div className="relative w-80 h-36 mb-4 drop-shadow-xl">
-                        <Image 
-                            src="/logo copy.png" 
-                            alt="Build2Click Logo" 
-                            fill
-                            className="object-contain"
-                            priority
-                        />
-                    </div>
+  const handleShare = useCallback(async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Build2Click | Digital Business Card',
+          text: 'Connect with Build2Click — Premium Digital Solutions',
+          url: cardUrl,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    }
+  }, []);
 
-                    {/* Services */}
-                    <p className="font-serif text-brown text-[clamp(7.5px,2.7vw,11.5px)] whitespace-nowrap leading-relaxed px-1 sm:px-4 tracking-normal min-[400px]:tracking-wide font-bold text-center w-full">
-                        Web Development <span className="text-gold mx-0.5 min-[400px]:mx-1">|</span> Brand Identity <span className="text-gold mx-0.5 min-[400px]:mx-1">|</span> Software Solutions
-                    </p>
-                </div>
+  const copyToClipboard = useCallback(() => {
+    navigator.clipboard.writeText(cardUrl).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  }, []);
 
-                {/* Contact & Social Grid */}
-                <div className="flex flex-col space-y-4 w-full mt-2 mb-24 relative z-20">
-                    
-                    {/* Phone */}
-                    <a href="tel:+917980313975" className="contact-btn flex items-center p-4 border border-gold/30 rounded-xl bg-cream/70 backdrop-blur-md group shadow-sm hover:shadow-md">
-                        <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold mr-4 border border-gold/20 shrink-0">
-                            <i className="fas fa-phone action-icon"></i>
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-xs text-gray-500 mb-0.5">Call Us</p>
-                            <p className="text-brown font-medium text-sm">+91 7980313975</p>
-                        </div>
-                        <i className="fas fa-chevron-right text-gold/40 text-xs"></i>
-                    </a>
+  return (
+    <div className="h-screen w-full flex flex-col items-center justify-center p-3 sm:p-6 bg-ivory overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #FCFBF8 0%, #F5F4F0 100%)' }}
+    >
+      <div className="w-full max-w-[380px] h-full sm:h-auto sm:max-h-[90vh] rounded-[2.5rem] relative overflow-hidden bg-white shadow-[0_25px_80px_rgba(0,0,0,0.06),0_0_40px_rgba(197,160,89,0.03)] border border-gold/10 flex flex-col"
+        style={{ transition: 'transform 0.3s ease-out' }}>
 
-                    {/* WhatsApp */}
-                    <a href="https://wa.me/917980313975?text=Hello%20Build2Click,%20I%20would%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener noreferrer" className="contact-btn flex items-center p-4 border border-gold/30 rounded-xl bg-cream/70 backdrop-blur-md group shadow-sm hover:shadow-md">
-                        <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-[#25D366] mr-4 border border-green-200 shrink-0">
-                            <i className="fab fa-whatsapp action-icon text-lg"></i>
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-xs text-gray-500 mb-0.5">WhatsApp</p>
-                            <p className="text-brown font-medium text-sm">Chat with us</p>
-                        </div>
-                        <i className="fas fa-chevron-right text-gold/40 text-xs"></i>
-                    </a>
+        {/* 3D Floating Symbols INSIDE Card */}
+        {mounted && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+            {FLOATING_ICONS.map(({ Icon, ...s }, idx) => (
+              <div
+                key={idx}
+                className="absolute flex items-center justify-center text-gold-dark/40 animate-float-rise"
+                style={{
+                  left: s.left,
+                  bottom: '-10%',
+                  width: s.size + 'px',
+                  height: s.size + 'px',
+                  animationDelay: s.delay,
+                  animationDuration: s.duration,
+                }}
+              >
+                <Icon size={s.size} strokeWidth={1.5} />
+              </div>
+            ))}
+          </div>
+        )}
 
-                    {/* Website */}
-                    <a href="https://www.build2click.in" target="_blank" rel="noopener noreferrer" className="contact-btn flex items-center p-4 border border-gold/30 rounded-xl bg-cream/70 backdrop-blur-md group shadow-sm hover:shadow-md">
-                        <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold mr-4 border border-gold/20 shrink-0">
-                            <i className="fas fa-globe action-icon"></i>
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-xs text-gray-500 mb-0.5">Website</p>
-                            <p className="text-brown font-medium text-sm">www.build2click.in</p>
-                        </div>
-                        <i className="fas fa-chevron-right text-gold/40 text-xs"></i>
-                    </a>
+        {/* Internal Glows for depth */}
+        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-gold/5 blur-[40px] rounded-full"></div>
+        <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] bg-gold/5 blur-[40px] rounded-full"></div>
 
-                    {/* Email */}
-                    <a href="mailto:build2click@gmail.com" className="contact-btn flex items-center p-4 border border-gold/30 rounded-xl bg-cream/70 backdrop-blur-md group shadow-sm hover:shadow-md">
-                        <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold mr-4 border border-gold/20 shrink-0">
-                            <i className="fas fa-envelope action-icon"></i>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-xs text-gray-500 mb-0.5">Email</p>
-                            <p className="text-brown font-medium text-sm truncate">build2click@gmail.com</p>
-                        </div>
-                        <i className="fas fa-chevron-right text-gold/40 text-xs"></i>
-                    </a>
+        {/* Share Button (Top Right) */}
+        <button onClick={() => setShareModalOpen(true)} aria-label="Share"
+          className="absolute top-6 right-6 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 transform hover:-translate-y-1 bg-[#FAFAF7] border border-gold/20 text-gold hover:bg-gold hover:text-white z-20 shadow-sm"
+        >
+          <Share2 size={16} strokeWidth={2} />
+        </button>
 
-                    {/* Instagram */}
-                    <a href="https://www.instagram.com/build2click?igsh=MW1tMTJxY2RoeXdkMg==" target="_blank" rel="noopener noreferrer" className="contact-btn flex items-center p-4 border border-gold/30 rounded-xl bg-cream/70 backdrop-blur-md group shadow-sm hover:shadow-md">
-                        <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center text-[#E1306C] mr-4 border border-pink-200 shrink-0">
-                            <i className="fab fa-instagram action-icon text-lg"></i>
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-xs text-gray-500 mb-0.5">Instagram</p>
-                            <p className="text-brown font-medium text-sm">Follow us</p>
-                        </div>
-                        <i className="fas fa-chevron-right text-gold/40 text-xs"></i>
-                    </a>
+        <div className="flex flex-col items-center px-6 pt-10 pb-6 text-center relative z-10 flex-grow justify-evenly">
 
-                </div>
-
+          {/* Logo + Title grouped together */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="relative animate-logo-zoom origin-center">
+              <div className="w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] flex items-center justify-center bg-transparent">
+                <img src="/logo.png" alt="Build2Click" className="w-[90%] h-[90%] object-contain scale-110" />
+              </div>
             </div>
 
-            {/* Floating Save to Contacts Button */}
-            <div className="save-btn-container flex flex-col items-center">
-                <button onClick={downloadVCard} className="gold-bg w-full py-4 rounded-xl text-white font-semibold shadow-lg shadow-gold/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
-                    {saved ? (
-                        <>
-                            <i className="fas fa-check text-lg"></i>
-                            <span>Saved!</span>
-                        </>
-                    ) : (
-                        <>
-                            <i className="fas fa-address-card text-lg"></i>
-                            <span>Save to Contacts</span>
-                        </>
-                    )}
-                </button>
-                <div className="mt-4 flex items-center justify-center w-full pb-2">
-                    <span className="font-serif italic text-gold-dark bg-gold/10 px-4 py-1.5 rounded-full text-[13px] font-bold tracking-wide border border-gold/20 shadow-sm">
-                        We Build You Grow 🌱
-                    </span>
-                </div>
+            {/* Title and Branding */}
+            <div className="space-y-3 group cursor-default">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-[0.1em] uppercase 
+                           text-transparent bg-clip-text bg-gradient-to-r from-gold to-gold-dark drop-shadow-sm select-none transition-transform duration-500 group-hover:scale-105">
+              BUILD2CLICK
+            </h1>
+            <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-gold-dark/70 whitespace-nowrap pt-1 transition-all duration-500 group-hover:text-gold group-hover:-translate-y-1 group-hover:tracking-[0.25em] relative">
+              WEBSITE <span className="opacity-30 mx-1">|</span> BRAND IDENTITY <span className="opacity-30 mx-1">|</span> SOFTWARE SOLUTION
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none"></span>
+            </p>
             </div>
+          </div>
+
+          {/* Description - strictly two rows with air */}
+          <div className="py-2 w-full">
+            <p className="text-[11px] sm:text-[12px] font-serif italic font-medium leading-[1.6] text-charcoal/50 w-full border-y border-gold/5 py-3 px-2">
+              Pioneering the next generation of intuitive digital<br />experiences and seamless web architecture.
+            </p>
+          </div>
+
+          <div className="w-full space-y-5">
+            {/* Contacts Grid */}
+            <div className="grid grid-cols-4 gap-3 w-full">
+              {CONTACTS.map((c) => (
+                <a key={c.label} href={c.action} target={c.external ? '_blank' : undefined}
+                  className="flex flex-col items-center gap-1.5 group transition-all duration-300 transform hover:-translate-y-1.5">
+                  <div className="w-full aspect-square rounded-[1.2rem] flex items-center justify-center text-gold bg-[#FAFAF7] border border-gold/15 transition-all duration-300 group-hover:bg-gold group-hover:text-white group-hover:border-gold group-hover:shadow-[0_10px_20px_rgba(197,160,89,0.25)]">
+                    {c.icon}
+                  </div>
+                  <span className="text-[8px] font-black tracking-widest text-muted uppercase group-hover:text-gold-dark transition-colors">
+                    {c.label}
+                  </span>
+                </a>
+              ))}
+              <button onClick={handleSave} className="flex flex-col items-center gap-1.5 group transition-all duration-300 transform hover:-translate-y-1.5 w-full">
+                <div className="w-full aspect-square rounded-[1.2rem] flex items-center justify-center text-gold bg-[#FAFAF7] border border-gold/15 transition-all duration-300 group-hover:bg-gold group-hover:text-white group-hover:border-gold group-hover:shadow-[0_10px_20px_rgba(197,160,89,0.25)]">
+                  <Download size={20} strokeWidth={1.5} />
+                </div>
+                <span className="text-[8px] font-black tracking-widest text-muted uppercase group-hover:text-gold-dark transition-colors">
+                  SAVE
+                </span>
+              </button>
+            </div>
+
+            <div className="w-full flex-col flex items-center gap-4">
+              <div className="w-[80%] h-[1px] bg-gradient-to-r from-transparent via-gold/10 to-transparent"></div>
+
+              {/* Social Links Row */}
+              <div className="flex justify-center gap-5">
+                {[
+                  { label: 'WhatsApp', href: 'https://wa.me/917980313975', svg: '<path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path>' },
+                  { label: 'Instagram', href: 'https://www.instagram.com/build2click', svg: '<rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>' },
+                  { label: 'LinkedIn', href: '#', svg: '<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>' }
+                ].map((social) => (
+                  <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={social.label}
+                    className="w-9 h-9 rounded-full border border-gold/30 flex items-center justify-center text-muted hover:text-white hover:bg-gold transition-all duration-300 transform hover:-translate-y-1 bg-[#FAFAF7] shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: social.svg }} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
-    );
+      </div>
+
+      {/* Share Modal */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-charcoal/20 backdrop-blur-sm animate-fade-in" onClick={() => setShareModalOpen(false)}></div>
+          <div className="relative bg-white w-full max-w-[340px] rounded-[2rem] p-8 shadow-2xl animate-logo-zoom flex flex-col items-center">
+            <button onClick={() => setShareModalOpen(false)} className="absolute top-5 right-5 text-muted hover:text-charcoal"><X size={20} /></button>
+            <h2 className="text-lg font-black text-charcoal mb-6 tracking-widest uppercase">SHARE PROFILE</h2>
+            <div className="w-[160px] h-[160px] bg-white border border-gold/10 p-2 rounded-[1.5rem] mb-6 flex items-center justify-center">
+              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(cardUrl)}&color=8D6220&bgcolor=FFFFFF`} alt="QR Code" className="w-full h-full object-contain" />
+            </div>
+            <div className="w-full space-y-3">
+              <button onClick={copyToClipboard} className="w-full py-3.5 rounded-xl border border-gold/20 flex items-center justify-center gap-2 font-bold text-xs tracking-wide transition-all hover:bg-gold/5">
+                {isCopied ? <><Check size={16} className="text-green-600" /><span className="text-green-600 uppercase">Copied!</span></> : <><Copy size={16} className="text-gold" /><span className="text-charcoal/80">COPY LINK</span></>}
+              </button>
+              {typeof navigator !== 'undefined' && (navigator as any).share && (
+                <button onClick={handleShare} className="w-full py-3.5 rounded-xl bg-gold text-white flex items-center justify-center gap-2 font-black text-xs tracking-widest uppercase shadow-md active:scale-95">
+                  <Share2 size={16} /> SEND VIA APPS
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Copyright info */}
+      <p className="mt-4 text-[9px] font-bold text-gold/40 tracking-widest uppercase text-center">
+        &copy; 2026 BUILD2CLICK &middot; Digital Solution
+      </p>
+    </div>
+  );
 }
