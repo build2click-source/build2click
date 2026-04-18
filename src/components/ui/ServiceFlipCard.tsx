@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 
 interface ServiceFlipCardProps {
@@ -7,14 +10,19 @@ interface ServiceFlipCardProps {
 }
 
 export default function ServiceFlipCard({ title, desc, img }: ServiceFlipCardProps) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
   return (
-    <div className="group relative h-[250px] md:h-[260px] w-full [perspective:1500px] cursor-pointer">
-      <div className="relative w-full h-full transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] shadow-[0_8px_20px_rgba(0,0,0,0.06)] rounded-2xl">
+    <div 
+      className="group relative h-[250px] md:h-[260px] w-full [perspective:1500px] cursor-pointer"
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
+      <div className={`relative w-full h-full transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] [transform-style:preserve-3d] shadow-[0_8px_20px_rgba(0,0,0,0.06)] rounded-2xl ${isFlipped ? '[transform:rotateY(180deg)]' : 'group-hover:[transform:rotateY(180deg)]'}`}>
 
         {/* FRONT SIDE */}
         <div className="absolute inset-0 [backface-visibility:hidden] rounded-2xl overflow-hidden bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" />
+          <img src={img} alt={title} className={`w-full h-full object-cover transition-transform duration-1000 ease-out ${isFlipped ? 'scale-105' : 'group-hover:scale-105'}`} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/95 via-[#111111]/30 to-transparent"></div>
           <div className="absolute bottom-5 left-5 right-5 z-20 flex flex-col justify-end">
             <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-wide mb-2 drop-shadow-md">{title}</h3>

@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { Layers, Users, MessageSquare, RefreshCw } from 'lucide-react';
 import { CORE_VALUES } from '@/lib/constants';
 import AnimateOnScroll from '@/components/ui/AnimateOnScroll';
@@ -10,6 +13,8 @@ const iconMap = {
 };
 
 export default function CoreValuesSection() {
+  const [activeValue, setActiveValue] = useState<number | null>(null);
+
   return (
     <div className="max-w-7xl mx-auto mb-32">
       <AnimateOnScroll animation="fade-up">
@@ -21,22 +26,23 @@ export default function CoreValuesSection() {
         {CORE_VALUES.map((val, i) => (
           <AnimateOnScroll key={i} animation="fade-up" delay={i * 150} duration={800} className="h-full">
             <div
+              onClick={() => setActiveValue(activeValue === i ? null : i)}
               className="group relative rounded-[2.5rem] overflow-hidden cursor-pointer h-full shadow-[0_15px_40px_rgba(0,0,0,0.06)] min-h-[300px]"
             >
             {/* Default Off-White Background */}
-            <div className="absolute inset-0 bg-ivory border border-[#EAEAEA] transition-opacity duration-500 group-hover:opacity-0"></div>
+            <div className={`absolute inset-0 bg-ivory border border-[#EAEAEA] transition-opacity duration-500 ${activeValue === i ? 'opacity-0' : 'group-hover:opacity-0'}`}></div>
             {/* Gold Gradient Hover Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-accent to-gold-dark opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+            <div className={`absolute inset-0 bg-gradient-to-br from-gold-accent to-gold-dark transition-opacity duration-500 ${activeValue === i ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}></div>
 
             {/* Content */}
             <div className="relative z-10 p-8 md:p-10 flex flex-col h-full text-left">
-              <div className="mb-12 text-gold-accent group-hover:text-white transition-colors duration-500">
+              <div className={`mb-12 transition-colors duration-500 ${activeValue === i ? 'text-white' : 'text-gold-accent group-hover:text-white'}`}>
                 {iconMap[val.iconName]}
               </div>
-              <h3 className="text-[22px] font-black text-charcoal group-hover:text-white transition-colors duration-500 mb-6 leading-[1.2] whitespace-pre-line">
+              <h3 className={`text-[22px] font-black transition-colors duration-500 mb-6 leading-[1.2] whitespace-pre-line ${activeValue === i ? 'text-white' : 'text-charcoal group-hover:text-white'}`}>
                 {val.title}
               </h3>
-              <p className="text-muted group-hover:text-white/90 text-[15px] leading-relaxed whitespace-pre-line transition-colors duration-500">
+              <p className={`text-[15px] leading-relaxed whitespace-pre-line transition-colors duration-500 ${activeValue === i ? 'text-white/90' : 'text-muted group-hover:text-white/90'}`}>
                 {val.desc}
               </p>
             </div>
