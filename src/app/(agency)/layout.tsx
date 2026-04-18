@@ -35,7 +35,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${montserrat.variable} antialiased`}
     >
-      <body className="min-h-screen bg-ivory text-charcoal font-sans flex flex-col">
+      <body className="min-h-screen bg-ivory text-charcoal font-sans flex flex-col overflow-x-hidden w-full max-w-[100vw]">
         {/* Ambient gold glow */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[600px] bg-gradient-to-b from-gold/10 via-gold-dark/5 to-transparent blur-[120px] pointer-events-none rounded-full z-0" />
 
