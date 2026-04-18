@@ -16,13 +16,13 @@ export default function AboutPage() {
       <div className="text-center mb-16">
         <h1 className="premium-headline font-black uppercase text-center mb-5 md:mb-6">
           <span
-            className="block text-[2.5rem] sm:text-3xl md:text-4xl lg:text-[3.25rem] text-transparent tracking-widest mb-1 md:mb-2 break-words leading-none"
+            className="block text-3xl sm:text-4xl md:text-4xl lg:text-[3.25rem] text-transparent tracking-widest mb-1 md:mb-2 break-words leading-none"
             style={{ WebkitTextStroke: '1.5px #CBA461' }}
           >
             BUILDERS,
           </span>
-          <span className="block text-[2.75rem] sm:text-4xl md:text-5xl lg:text-[4.25rem] tracking-tight leading-[1.1] break-words">
-            <span className="block md:inline text-charcoal mr-0 md:mr-4 mb-1 md:mb-0">THINKERS,</span>
+          <span className="block text-[2rem] sm:text-4xl md:text-5xl lg:text-[4.25rem] tracking-tight leading-[1.1] break-words">
+            <span className="block md:inline text-charcoal mr-0 md:mr-4 mb-2 md:mb-0">THINKERS,</span>
             <span className="block md:inline text-gold-accent">INNOVATORS.</span>
           </span>
         </h1>
