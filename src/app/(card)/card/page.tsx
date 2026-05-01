@@ -140,7 +140,6 @@ export default function CardPage() {
             </div>
           </div>
 
-          {/* Description - strictly two rows with air */}
           <div className="py-2 w-full">
             <p className="text-[11px] sm:text-[12px] font-serif italic font-medium leading-[1.6] text-charcoal/50 w-full border-y border-gold/5 py-3 px-2">
               Pioneering the next generation of intuitive digital<br />experiences and seamless web architecture.

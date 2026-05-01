@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Indu Ice Cream | Digital E-Card</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pista: '#94A684',
+                        pistadark: '#7A8C6A',
+                        blush: '#F3D2C3',
+                        blushdark: '#D9B8A9',
+                        choco: '#4A342E',
+                        cream: '#FDFBF7',
+                        swiggy: '#FC8019',
+                        zomato: '#E23744',
+                        gold: '#937341',
+                    },
+                    fontFamily: {
+                        playfair: ['"Playfair Display"', 'serif'],
+                        sans: ['"DM Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        .texture-bg {
+            background-color: #FDFBF7;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+
+        .glass-card {
+            background: rgba(253, 251, 247, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes blobFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-5 {
+            animation-delay: 0.5s;
+        }
+
+        .blob-animate {
+            animation: blobFloat 20s infinite ease-in-out;
+        }
+
+        .cta-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(252, 128, 25, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(252, 128, 25, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(252, 128, 25, 0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-choco font-sans antialiased min-h-[100dvh] flex items-center justify-center sm:py-10">
+
+    <!-- Mobile Container (E-Card Wrapper) -->
+    <main
+        class="w-full h-[100dvh] max-w-[430px] texture-bg sm:rounded-[2.5rem] sm:shadow-2xl relative sm:h-auto sm:max-h-[850px] sm:aspect-[9/19] sm:border-[8px] border-white flex flex-col overflow-hidden mx-auto shadow-xl">
+
+        <!-- Top Action Buttons -->
+        <div class="absolute top-4 left-4 right-4 z-50 flex justify-between items-center pointer-events-none">
+            <!-- Build2Click Logo (Top Left) -->
+            <a href="/card" title="Made by Build2Click"
+                class="pointer-events-auto w-10 h-10 flex items-center justify-center bg-white/90 backdrop-blur-md shadow-lg hover:scale-110 active:scale-95 transition-all rounded-md border border-white overflow-hidden group">
+                <img src="/logo_b2c.png" alt="Build2Click Logo"
+                    class="w-full h-full object-contain group-hover:rotate-6 transition-transform">
+            </a>
+
+            <!-- Share Button (Top Right) -->
+            <button onclick="toggleShareModal()"
+                class="pointer-events-auto w-10 h-10 flex items-center justify-center bg-white/90 backdrop-blur-md rounded-md border border-white shadow-lg hover:scale-110 active:scale-95 transition-all text-gold">
+                <i class="ph-bold ph-share-network text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Decorative Background Blobs -->
+        <div
+            class="absolute top-[-5%] left-[-15%] w-72 h-72 bg-pista rounded-full mix-blend-multiply filter blur-3xl opacity-40 blob-animate">
+        </div>
+        <div class="absolute top-[25%] right-[-15%] w-64 h-64 bg-blush rounded-full mix-blend-multiply filter blur-3xl opacity-40 blob-animate"
+            style="animation-delay: -5s;"></div>
+        <div class="absolute bottom-[-10%] left-[10%] w-80 h-80 bg-pista rounded-full mix-blend-multiply filter blur-3xl opacity-30 blob-animate"
+            style="animation-delay: -10s;"></div>
+
+        <!-- Main Scrollable Content Area (Optimized for One-Page Fit) -->
+        <div
+            class="flex-1 flex flex-col justify-evenly w-full relative z-10 overflow-y-auto hide-scrollbar pt-16 pb-14 px-5">
+
+            <!-- Header / Profile Section -->
+            <header class="flex flex-col items-center text-center shrink-0 opacity-0 animate-fade-in-up delay-1">
+                <!-- Profile Picture/Logo Avatar -->
+                <div
+                    class="w-[96px] h-[96px] rounded-full border-[3px] border-pista shadow-xl bg-cream overflow-hidden flex items-center justify-center relative mb-4 hover:rotate-3 transition-transform">
+                    <!-- Custom Indu Ice Cream Logo SVG -->
+                    <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="46" stroke="#94A684" stroke-width="2" stroke-dasharray="4 4" />
+                        <circle cx="50" cy="50" r="40" fill="#FDFBF7" />
+                        <path d="M30 60 C30 75, 40 80, 50 80 C60 80, 70 75, 70 60 Z" fill="#94A684" />
+                        <path d="M28 60 C28 55, 72 55, 72 60" stroke="#94A684" stroke-width="3"
+                            stroke-linecap="round" />
+                        <circle cx="42" cy="48" r="12" fill="#F3D2C3" />
+                        <circle cx="58" cy="48" r="12" fill="#D2E3C6" />
+                        <circle cx="50" cy="40" r="14" fill="#FDFBF7" stroke="#94A684" stroke-width="2" />
+                        <path d="M44 40 Q50 48 56 40" stroke="#94A684" stroke-width="2" fill="none"
+                            stroke-linecap="round" />
+                        <path d="M25 35 L28 40 L25 45 L22 40 Z" fill="#7A8C6A" />
+                        <path d="M75 25 L77 30 L75 35 L73 30 Z" fill="#F3D2C3" />
+                        <text x="50" y="73" font-family="'Playfair Display', serif" font-size="14" font-weight="bold"
+                            fill="#FDFBF7" text-anchor="middle">INDU</text>
+                    </svg>
+                </div>
+
+                <h1 class="font-playfair text-[26px] leading-tight font-bold tracking-tight mb-1 text-pistadark">Indu
+                    Ice Cream</h1>
+                <p class="text-[10px] font-bold text-choco/70 mb-3 tracking-widest uppercase">By Saloni Kukreja</p>
+                <p class="text-[14px] leading-relaxed max-w-[280px] text-choco/80">
+                    Small batch ice creams & sorbets inspired by Indian roots and nostalgia. 🍨✨
+                </p>
+            </header>
+
+            <!-- Links Section -->
+            <section
+                class="flex flex-col gap-3 w-full max-w-[320px] mx-auto shrink-0 mt-4 opacity-0 animate-fade-in-up delay-2">
+
+                <a href="https://www.swiggy.com/city/mumbai/indu-ice-cream-5aa-pali-hill-bandra-w--rest703629"
+                    target="_blank"
+                    class="group relative w-full flex items-center justify-center gap-2.5 bg-swiggy text-white py-3.5 px-6 rounded-2xl font-semibold text-[14px] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-[0.98] cta-pulse">
+                    <i class="ph-fill ph-plus-circle text-lg"></i>
+                    Order on Swiggy
+                </a>
+
+                <a href="https://www.zomato.com/mumbai/indu-ice-cream-pali-hill-bandra-west" target="_blank"
+                    class="group relative w-full flex items-center justify-center gap-2.5 bg-zomato text-white py-3.5 px-6 rounded-2xl font-semibold text-[14px] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-[0.98]">
+                    <i class="ph-fill ph-tag text-lg"></i>
+                    Order on Zomato
+                </a>
+
+                <a href="https://www.instagram.com/induicecream/" target="_blank"
+                    class="group relative w-full flex items-center justify-center gap-2.5 bg-pista text-white py-3.5 px-6 rounded-2xl font-semibold text-[14px] shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:bg-pistadark transition-all active:scale-[0.98]">
+                    <i class="ph-fill ph-instagram-logo text-lg"></i>
+                    Follow on Instagram
+                </a>
+
+                <a href="https://www.google.com/maps?q=Shop+No.2,+Indu+Ice+cream,+New+Silver+Sands+CHS,+Pali+Rd,+Bandra+West,+Mumbai,+Maharashtra+400050"
+                    target="_blank"
+                    class="group relative w-full flex items-center justify-center gap-2.5 bg-white/80 backdrop-blur-sm border border-white text-choco py-3.5 px-6 rounded-2xl font-semibold text-[14px] shadow-md hover:bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-[0.98]">
+                    <i class="ph-fill ph-map-pin text-lg text-pistadark"></i>
+                    Visit Pali Hill Shop
+                </a>
+            </section>
+
+            <!-- Highlights / Bestsellers -->
+            <section class="w-full max-w-[320px] mx-auto shrink-0 mt-6 opacity-0 animate-fade-in-up delay-3">
+                <h2 class="font-playfair text-[20px] font-bold mb-4 text-center">Our Classics</h2>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div
+                        class="glass-card p-3 rounded-[1.25rem] flex flex-col items-center text-center shadow-sm hover:shadow-md hover:bg-white/80 transition-all group">
+                        <div
+                            class="w-10 h-10 bg-pista/20 rounded-full mb-2 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="ph-fill ph-coffee text-xl text-pistadark"></i>
+                        </div>
+                        <h3 class="font-bold text-[11px] leading-tight mb-1">Filter Kaapi</h3>
+                        <p class="text-[9px] text-choco/60 leading-tight">with hazelnut</p>
+                    </div>
+
+                    <div
+                        class="glass-card p-3 rounded-[1.25rem] flex flex-col items-center text-center shadow-sm hover:shadow-md hover:bg-white/80 transition-all group">
+                        <div
+                            class="w-10 h-10 bg-blush/40 rounded-full mb-2 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="ph-fill ph-flower-tulip text-xl text-blushdark"></i>
+                        </div>
+                        <h3 class="font-bold text-[11px] leading-tight mb-1">Kokum Sorbet</h3>
+                        <p class="text-[9px] text-choco/60 leading-tight">tangy summer</p>
+                    </div>
+
+                    <div
+                        class="glass-card p-3 rounded-[1.25rem] flex flex-col items-center text-center shadow-sm hover:shadow-md hover:bg-white/80 transition-all group">
+                        <div
+                            class="w-10 h-10 bg-pista/20 rounded-full mb-2 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="ph-fill ph-plant text-xl text-pistadark"></i>
+                        </div>
+                        <h3 class="font-bold text-[11px] leading-tight mb-1">Pista Baklava</h3>
+                        <p class="text-[9px] text-choco/60 leading-tight">rose water</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Fixed Footer -->
+        <footer
+            class="absolute bottom-0 left-0 right-0 py-4 text-center z-20 bg-white/60 backdrop-blur-lg border-t border-white/40 opacity-0 animate-fade-in-up delay-4">
+            <p
+                class="text-[11px] font-bold tracking-[0.15em] text-choco/60 flex items-center justify-center gap-2 uppercase">
+                <i class="ph-fill ph-heart text-blushdark text-sm animate-pulse"></i> Crafted by <a
+                    href="/"
+                    class="hover:text-choco transition-colors">Build2Click.in</a>
+            </p>
+        </footer>
+
+        <!-- Share Modal -->
+        <div id="shareModal"
+            class="fixed inset-0 z-[60] bg-cream/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-[340px] rounded-[2rem] shadow-2xl p-6 relative transform scale-95 transition-transform duration-300 border border-choco/10"
+                id="shareModalContent">
+                <button onclick="toggleShareModal()"
+                    class="absolute top-5 right-5 text-choco/50 hover:text-choco transition-colors">
+                    <i class="ph-bold ph-x text-2xl"></i>
+                </button>
+
+                <h3 class="font-playfair text-2xl font-bold mb-5 text-center">Share E-Card</h3>
+
+                <div class="w-40 h-40 mx-auto bg-white rounded-2xl shadow-sm border border-choco/10 p-3 mb-6">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.instagram.com/induicecream/&color=4A342E&bgcolor=FFFFFF"
+                        alt="Scan to Share" class="w-full h-full rounded-xl" />
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <button onclick="shareViaWhatsApp()"
+                        class="w-full bg-[#25D366] text-white py-3 rounded-xl font-semibold text-[14px] hover:bg-[#128C7E] transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <i class="ph-fill ph-whatsapp-logo text-xl"></i> Share on WhatsApp
+                    </button>
+
+                    <div class="flex gap-2.5">
+                        <button onclick="nativeShare()"
+                            class="flex-1 bg-white border border-choco/10 text-choco py-3 rounded-xl font-semibold text-[14px] hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                            <i class="ph-bold ph-export text-xl"></i> Share
+                        </button>
+
+                        <button onclick="copyLink()" id="copyBtn"
+                            class="flex-1 bg-pista text-white py-3 rounded-xl font-semibold text-[14px] hover:bg-pistadark transition-colors flex items-center justify-center gap-2 shadow-sm">
+                            <i class="ph-bold ph-link text-xl"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        function toggleShareModal() {
+            const modal = document.getElementById('shareModal');
+            const modalContent = document.getElementById('shareModalContent');
+
+            if (modal.classList.contains('opacity-0')) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modalContent.classList.remove('scale-100');
+                modalContent.classList.add('scale-95');
+            }
+        }
+
+        function getShareLink() {
+            return window.location.origin + "/induicecream";
+        }
+
+        function shareViaWhatsApp() {
+            const link = getShareLink();
+            const text = encodeURIComponent(`Check out Indu Ice Cream's E-Card! 🍨✨\n${link}`);
+            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        }
+
+        async function nativeShare() {
+            const link = getShareLink();
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Indu Ice Cream',
+                        text: 'Check out Indu Ice Cream\'s E-Card! 🍨✨',
+                        url: link,
+                    });
+                } catch (err) {
+                    console.log('Share canceled or failed', err);
+                }
+            } else {
+                const btn = event.currentTarget;
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<span class="text-xs">Not Supported</span>';
+                setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+            }
+        }
+
+        function copyLink() {
+            const linkToCopy = getShareLink();
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(linkToCopy).then(showCopySuccess);
+            } else {
+                const tempInput = document.createElement("input");
+                tempInput.value = linkToCopy;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    document.execCommand("copy");
+                    showCopySuccess();
+                } catch (err) { }
+                document.body.removeChild(tempInput);
+            }
+        }
+
+        function showCopySuccess() {
+            const btn = document.getElementById('copyBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="ph-bold ph-check text-xl"></i> Copied!';
+            btn.classList.add('bg-pistadark');
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-pistadark');
+            }, 2000);
+        }
+    </script>
+</body>
+
+</html>
