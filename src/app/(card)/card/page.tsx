@@ -208,7 +208,7 @@ export default function CardPage() {
                 fgColor={"#8D6220"}
                 level={"H"}
                 imageSettings={{
-                  src: "/b2c-gold-logo.png",
+                  src: "/logo_b2c.png",
                   height: 32,
                   width: 32,
                   excavate: true,
