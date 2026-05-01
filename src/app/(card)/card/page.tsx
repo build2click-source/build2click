@@ -199,8 +199,13 @@ export default function CardPage() {
           <div className="relative bg-white w-full max-w-[340px] rounded-[2rem] p-8 shadow-2xl animate-logo-zoom flex flex-col items-center">
             <button onClick={() => setShareModalOpen(false)} className="absolute top-5 right-5 text-muted hover:text-charcoal"><X size={20} /></button>
             <h2 className="text-lg font-black text-charcoal mb-6 tracking-widest uppercase">SHARE PROFILE</h2>
-            <div className="w-[160px] h-[160px] bg-white border border-gold/10 p-2 rounded-[1.5rem] mb-6 flex items-center justify-center">
-              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(cardUrl)}&color=8D6220&bgcolor=FFFFFF`} alt="QR Code" className="w-full h-full object-contain" />
+            <div className="relative w-[160px] h-[160px] bg-white border border-gold/10 p-2 rounded-[1.5rem] mb-6 flex items-center justify-center">
+              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(cardUrl)}&color=8D6220&bgcolor=FFFFFF&ecc=H`} alt="QR Code" className="w-full h-full object-contain" />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-white p-1 rounded-lg border border-gold/20 shadow-md flex items-center justify-center">
+                  <img src="/icon.png" alt="B2C Logo" className="w-8 h-8 object-contain" />
+                </div>
+              </div>
             </div>
             <div className="w-full space-y-3">
               <button onClick={copyToClipboard} className="w-full py-3.5 rounded-xl border border-gold/20 flex items-center justify-center gap-2 font-bold text-xs tracking-wide transition-all hover:bg-gold/5">
