@@ -8,27 +8,25 @@ export default function InduPage() {
 
   const toggleShareModal = () => setIsShareModalOpen(!isShareModalOpen);
 
-  const getShareLink = () => {
-    if (typeof window !== 'undefined') {
-      return window.location.origin + "/induicecream";
-    }
-    return "";
-  };
+  const [shareLink, setShareLink] = useState("");
+
+  useEffect(() => {
+    setShareLink(window.location.origin + "/induicecream");
+  }, []);
+
 
   const shareViaWhatsApp = () => {
-    const link = getShareLink();
-    const text = encodeURIComponent(`Check out Indu Ice Cream's E-Card! 🍨✨\n${link}`);
+    const text = encodeURIComponent(`Check out Indu Ice Cream's E-Card! 🍨✨\n${shareLink}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
   const nativeShare = async () => {
-    const link = getShareLink();
     if (navigator.share) {
       try {
         await navigator.share({
           title: 'Indu Ice Cream',
           text: "Check out Indu Ice Cream's E-Card! 🍨✨",
-          url: link,
+          url: shareLink,
         });
       } catch (err) {
         console.log('Share canceled or failed', err);
@@ -37,8 +35,7 @@ export default function InduPage() {
   };
 
   const copyLink = () => {
-    const linkToCopy = getShareLink();
-    navigator.clipboard.writeText(linkToCopy).then(() => {
+    navigator.clipboard.writeText(shareLink).then(() => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     });
@@ -219,8 +216,12 @@ export default function InduPage() {
             </button>
             <h3 className="font-[family-name:var(--font-playfair)] text-2xl font-bold mb-5 text-center">Share E-Card</h3>
             <div className="w-40 h-40 mx-auto bg-white rounded-2xl shadow-sm border border-[#4A342E]/10 p-3 mb-6">
-              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(getShareLink())}&color=4A342E&bgcolor=FFFFFF`}
-                alt="Scan to Share" className="w-full h-full rounded-xl" />
+              {shareLink ? (
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareLink)}&color=4A342E&bgcolor=FFFFFF`}
+                  alt="Scan to Share" className="w-full h-full rounded-xl" />
+              ) : (
+                <div className="w-full h-full rounded-xl bg-gray-100 animate-pulse"></div>
+              )}
             </div>
             <div className="flex flex-col gap-3">
               <button onClick={shareViaWhatsApp}
