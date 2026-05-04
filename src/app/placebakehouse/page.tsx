@@ -107,7 +107,14 @@ export default function PlaceBakehousePage() {
             <h1 className="font-serif text-3xl font-bold text-coffee-900 mb-1">Place Bakehouse</h1>
             <p className="text-coffee-600 font-medium text-sm tracking-wide uppercase">Specialty Coffee &amp; Bakes</p>
             {/* MasterChef Badge */}
-            <div className="relative inline-block mt-3 group/chef outline-none" tabIndex={0}>
+            <div 
+              className="relative inline-block mt-3 group/chef outline-none" 
+              tabIndex={0}
+              onClick={(e) => {
+                const target = e.currentTarget;
+                setTimeout(() => target.blur(), 1000);
+              }}
+            >
               <div className="inline-flex items-center gap-2 bg-coffee-100 text-coffee-800 text-xs px-3 py-1.5 rounded-full border border-coffee-200 shadow-sm hover:bg-white hover:border-coffee-300 hover:shadow-md hover:-translate-y-0.5 group-focus/chef:bg-white group-focus/chef:border-coffee-300 group-focus/chef:shadow-md group-focus/chef:-translate-y-0.5 transition-all cursor-pointer">
                 <i className="fa-solid fa-star text-yellow-500 group-hover/chef:scale-125 group-focus/chef:scale-125 transition-transform duration-300"></i>
                 <span className="group-hover/chef:text-coffee-900 group-focus/chef:text-coffee-900 font-medium transition-colors">By MasterChef India Winners Ajinkya &amp; Vikram Gandhe</span>
