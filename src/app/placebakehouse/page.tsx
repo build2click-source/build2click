@@ -160,7 +160,9 @@ export default function PlaceBakehousePage() {
           {/* Footer */}
           <div className="mt-8 flex justify-center w-full">
             <a href="https://www.build2click.in/card" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 group opacity-90 hover:opacity-100 transition-all">
-              <div className="border border-coffee-400 w-[22px] h-[22px] flex items-center justify-center bg-transparent animate-pop-box group-hover:bg-coffee-50 transition-colors"><i className="fa-solid fa-heart text-coffee-400 text-[11px]"></i></div>
+              <div className="border border-coffee-200/50 w-[24px] h-[24px] flex items-center justify-center bg-coffee-50 rounded-md animate-pop-box transition-colors">
+                <i className="fa-solid fa-heart text-coffee-400 text-[11px]"></i>
+              </div>
               <span className="text-[11px] font-bold tracking-[0.2em] text-coffee-600 uppercase mt-0.5 group-hover:text-coffee-800 transition-colors">Crafted By Build2Click.in</span>
             </a>
           </div>

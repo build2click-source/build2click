@@ -70,8 +70,12 @@ export default function PlaceBakehouseLayout({
           .contact-item:hover .icon-circle{background-color:#4A3525;color:#FDF8F5;transform:scale(1.1);}
           .btn-hover-effect{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s ease;}
           .btn-hover-effect:hover{transform:translateY(-3px);box-shadow:0 10px 20px -5px rgba(74,53,37,0.3);}
-          @keyframes popBox{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(217,180,143,0.6);}50%{transform:scale(1.15);box-shadow:0 0 0 6px rgba(217,180,143,0);}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(217,180,143,0);}}
-          .animate-pop-box{animation:popBox 2s infinite cubic-bezier(0.66,0,0,1);}
+          @keyframes popBox {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217,180,143,0.5); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 8px rgba(217,180,143,0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217,180,143,0); }
+          }
+          .animate-pop-box { animation: popBox 1.6s infinite ease-in-out; }
           @keyframes steamRise{0%{transform:translateY(0) scale(1);opacity:0;}50%{opacity:1;}100%{transform:translateY(-10px) scale(1.1);opacity:0;}}
           .animate-steam{animation:steamRise 2s ease-in-out infinite;}
           .animate-steam-delay-1{animation:steamRise 2s ease-in-out infinite 0.6s;}
